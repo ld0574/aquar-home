@@ -1,0 +1,20 @@
+services:
+  aquarhome:
+    image: ld0574/aquarhome:latest
+    container_name: aquarhome
+    environment:
+      PORT: ${AQUAR_PORT:-8172}
+      TZ: ${TZ:-Asia/Shanghai}
+      AQUAR_DATA_PATH: /var/aquardata
+      KOMARI_SERVER: ${KOMARI_SERVER:-}
+      KOMARI_AUTHORIZATION: ${KOMARI_AUTHORIZATION:-}
+      KOMARI_PROXY_TIMEOUT: ${KOMARI_PROXY_TIMEOUT:-15000}
+    volumes:
+      - /data/aquar/data:/var/aquardata 
+      - /data/aquar/aquarpool:/opt/aquarpool 
+      - /data/aquar/logs:/root/.pm2/logs
+    ports:
+      - "${AQUAR_PORT:-8172}:${AQUAR_PORT:-8172}/tcp"
+      - "10000-10100:10000-10100/udp"
+      - "10000-10100:10000-10100/tcp"
+    restart: unless-stopped

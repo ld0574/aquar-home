@@ -90,9 +90,10 @@ services:
       - ./aquarpool:/opt/aquarpool
       - ./logs:/root/.pm2/logs
     ports:
-      - "${AQUAR_PORT:-8172}:${AQUAR_PORT:-8172}"
+      - "${AQUAR_PORT:-8172}:${AQUAR_PORT:-8172}/tcp"
       # 视频聊天组件使用 mediasoup；不需要视频聊天时可以删除这一行。
-      - "10000-10100:10000-10100"
+      - "10000-10100:10000-10100/udp"
+      - "10000-10100:10000-10100/tcp"
     restart: unless-stopped
 ```
 
@@ -137,6 +138,22 @@ docker compose ps
 ```bash
 docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t ld0574/aquarhome:latest .
 ```
+
+如果直接执行 `docker push` 时遇到 Docker Hub 网络问题，而又不希望修改 Docker daemon 的代理配置，可以让 `skopeo` 通过当前终端代理直接推送。部分 Debian 软件源中的旧版 skopeo 访问 `docker-daemon:` 时会使用过低的 Docker API 版本，因此这里使用 `docker save` 导出的归档文件作为输入：
+
+```bash
+export HTTP_PROXY=http://10.10.10.131:7890
+export HTTPS_PROXY=http://10.10.10.131:7890
+export ALL_PROXY=socks5h://10.10.10.131:7890
+
+docker save -o /tmp/aquarhome-latest.tar ld0574/aquarhome:latest
+skopeo login docker.io
+skopeo copy \
+  docker-archive:/tmp/aquarhome-latest.tar \
+  docker://docker.io/ld0574/aquarhome:latest
+```
+
+这种方式不会改变 `/etc/docker/daemon.json`，因此不会影响 Docker 已配置的镜像加速器。若还要推送固定版本 tag，先使用 `docker tag` 和 `docker save` 导出对应 tag，再将目标地址中的 `latest` 替换为该版本号。
 
 将 `.env` 中的 `AQUAR_IMAGE` 保持为 `ld0574/aquarhome:latest`，再执行：
 
