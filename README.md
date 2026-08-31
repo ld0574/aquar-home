@@ -130,7 +130,7 @@ docker compose up --pull never -d
 docker compose ps
 ```
 
-构建阶段会安装 mediasoup 的编译依赖并构建前端，首次构建可能需要较长时间和稳定的外网访问。仓库中的 `Dockerfile_alpine` 当前实际使用的也是 `node:16-slim`，因此默认使用 `Dockerfile` 即可。
+构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。mediasoup 和 sharp 会优先下载预编译文件，下载不到时 builder 会回退到本地编译。首次构建可能需要较长时间和稳定的外网访问。
 
 镜像名只是本机 tag，不代表镜像已经推送到仓库。也可以直接使用与 Docker Hub 相同的 tag 构建，但不执行 `docker push`：
 
@@ -216,8 +216,8 @@ docker compose logs -f --tail=200 aquarhome
 
 如果你的环境不方便使用docker，或者你需要根据自己的需求修改AquarHome的代码，可以使用源码方式部署AquarHome。但由于对mediasoup流媒体服务组件的集成，搭建环境较为繁琐，若你不是开发者则不建议以这种方式部署。
 
-1.由于集成了流媒体服务组件mediasoup，其安装过程中依赖python3环境、配套的pip工具以及gcc等C语言编译工具，再加上AquarHome本身需要的nodejs 14+环境，强烈建议在linux环境下安装，以下建议也按照linux环境给出，安装根据mediasoup的文档要求，AquarHome需要如下环境：
-  1) nodejs version>=14及匹配版本的npm。 
+1.由于集成了流媒体服务组件mediasoup，其安装过程中依赖python3环境、配套的pip工具以及gcc等C语言编译工具，AquarHome统一使用nodejs 22及匹配版本的npm，强烈建议在linux环境下安装，以下建议也按照linux环境给出，安装根据mediasoup的文档要求，AquarHome需要如下环境：
+  1) Node.js 22及匹配版本的npm。
   2) python version>=3.6及匹配版本的pip命令。
   3) GNU make
   4) gcc and g++ >= 4.9 或 clang (with C++11 support)
@@ -237,14 +237,14 @@ npm config set registry https://registry.npm.taobao.org # 将下载源切换为�
 npm install -g pm2 # 安装pm2，作为运行nodejs的容器
 cd /path/to/aquar-home
 cd aquar_home_front # 进入前端项目目录
-npm install # 安装依赖
-npm run build # 构建前端项目
+npm ci # 按锁文件安装依赖
+NODE_OPTIONS=--openssl-legacy-provider npm run build # 构建前端项目
 cd ../aquar_home_server # 进入后端项目
 rm -rf public/static/ # 清空原有静态资源文件，下两行同义
 rm -rf public/favicon.ico
 rm -rf public/index.html
 cp -r ../aquar_home_front/dist/* public/ # 将打包好的前端项目拷贝进后端项目中
-npm install --unsafe-perm # 安装后端项目依赖，由于后端项目依赖sharp.js，需要在系统中安装图像处理的C语言库，所以需要管理员权限，且下载时速度较慢，如果超时请多试几次
+npm ci --omit=dev # 按锁文件安装后端生产依赖
 npm run prd # 调用pm2运行项目
 ```
 

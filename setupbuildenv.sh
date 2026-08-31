@@ -177,9 +177,9 @@ git config --global http.sslverify false
 git clone $gitrepo
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 source /root/.bashrc
-nvm install 16
-nvm alias default 16
-nvm use 16
+nvm install 22
+nvm alias default 22
+nvm use 22
 cd /root/aquar-home/aquar_home_server/
-npm install
+npm ci --omit=dev
 COMMENT
