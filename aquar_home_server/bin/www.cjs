@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var app = require('../app');
 var debug = require('debug')('demo:server');
 var http = require('http');
 
@@ -13,21 +12,28 @@ var http = require('http');
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+var server;
 // app.set('port', port);
 
-/**
- * Create HTTP server.
- */
+(async function start() {
+  const [{ default: app }, { attachKomariWebSocketProxy }] = await Promise.all([
+    import('../app.js'),
+    import('../service/komari-proxy.js')
+  ]);
 
-var server = http.createServer(app.callback());
+  /**
+   * Create HTTP server.
+   */
+  server = http.createServer(app.callback());
+  attachKomariWebSocketProxy(server);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
+})();
 
 /**
  * Normalize a port into a number, string, or false.

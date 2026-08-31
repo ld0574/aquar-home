@@ -16,7 +16,8 @@ import appDao from './service/db/app-dao.js'
 import fs from 'fs'
 import https from 'https'
 
-const DB_PATH = '/var/aquardata/db/'
+const DATA_ROOT = process.env.AQUAR_DATA_PATH || '/var/aquardata'
+const DB_PATH = `${DATA_ROOT}/db/`
 const __dirname = path.resolve();
 
 if (!fs.existsSync(DB_PATH+'themes.json')){
@@ -48,7 +49,7 @@ app.use(json())
 // app.use(logger())
 console.log(__dirname)
 app.use(koastatic(__dirname + '/public'))
-app.use(koastatic('/var/aquardata'))
+app.use(koastatic(DATA_ROOT))
 
 app.use(views(__dirname + '/views', {
   extension: 'pug'

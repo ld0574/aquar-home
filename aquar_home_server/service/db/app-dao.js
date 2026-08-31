@@ -4,7 +4,25 @@ import jwt from 'jsonwebtoken'
 import cryptoRandomString from 'crypto-random-string'
 import moment from 'moment'
 import _ from 'lodash'
-const DB_PATH = '/var/aquardata/db/'
+const DATA_ROOT = process.env.AQUAR_DATA_PATH || '/var/aquardata'
+const DB_PATH = `${DATA_ROOT}/db/`
+
+const KOMARI_TAB = {
+  title: '可用性',
+  type: 'komari',
+  widgets: [],
+  data: { server: '/komari-api' }
+}
+
+function isKomariTab(tab) {
+  return Boolean(tab && tab.type === 'komari')
+}
+
+function ensureTabs(data) {
+  if (!data || !Array.isArray(data.tabs)) data.tabs = []
+  if (!data.tabs.some(isKomariTab)) data.tabs.push(_.cloneDeep(KOMARI_TAB))
+  return data.tabs
+}
 
 class AppDao {
   db = null
@@ -23,8 +41,11 @@ class AppDao {
   }
 
   saveAppEntry(tabIndex,entry) {
-    this.db.data.tabs[tabIndex].widgets.push(entry)
+    const tab = this.db.data.tabs[tabIndex]
+    if (!tab || !Array.isArray(tab.widgets)) return false
+    tab.widgets.push(entry)
     this.db.write()
+    return true
   }
   saveAppEntryBatch(tabIndex,widgets) {
     for(var i=0;i<widgets.length;i++){
@@ -52,7 +73,8 @@ class AppDao {
   findByCurIndex() {
     let index = this.db.chain.get('config.current_index').value()
     index = index ? index:0;
-    return this.db.data.tabs[index].widgets
+    const tab = this.db.data.tabs && this.db.data.tabs[index]
+    return tab && Array.isArray(tab.widgets) ? tab.widgets : []
   }
   findByWidget(widget) {
     let resList = []
@@ -164,25 +186,61 @@ class AppDao {
     var res = this.db.data
     res = _.cloneDeep(res)
     delete res.auth
+    // Existing installations may have been created before the monitor tab
+    // existed. Expose an append-only virtual tab without rewriting their DB.
+    ensureTabs(res)
     return res
   }
   getTab(index) {
-    let res = this.db.chain.get('tabs['+index+']').value()
-    return res
+    const tabs = this.db.data && this.db.data.tabs
+    return Array.isArray(tabs) ? tabs[index] : undefined
   }
   updateTabs(data) {
-    this.db.data.tabs = data
+    if (!Array.isArray(data)) return
+    const existingTabs = Array.isArray(this.db.data.tabs) ? this.db.data.tabs : []
+    const submittedTabs = data.filter(tab => !isKomariTab(tab))
+
+    // The monitor tab is system-owned. A client can submit ordinary tab
+    // edits, but cannot delete or rewrite the protected tab by omission.
+    const protectedPlacements = []
+    let ordinaryBefore = 0
+    existingTabs.forEach(tab => {
+      if (isKomariTab(tab)) {
+        protectedPlacements.push({ tab, ordinaryBefore })
+      } else {
+        ordinaryBefore += 1
+      }
+    })
+
+    if (!protectedPlacements.length) {
+      this.db.data.tabs = _.cloneDeep(submittedTabs)
+    } else {
+      const nextTabs = _.cloneDeep(submittedTabs)
+      protectedPlacements.forEach((placement, index) => {
+        const targetIndex = Math.min(placement.ordinaryBefore + index, nextTabs.length)
+        nextTabs.splice(targetIndex, 0, _.cloneDeep(placement.tab))
+      })
+      this.db.data.tabs = nextTabs
+    }
     this.db.write()
   }
   addTab(tabData) {
-    this.db.data.tabs.push(tabData)
+    if (!Array.isArray(this.db.data.tabs)) this.db.data.tabs = []
+    if (isKomariTab(tabData) && this.db.data.tabs.some(isKomariTab)) return false
+    const komariIndex = this.db.data.tabs.findIndex(isKomariTab)
+    if (komariIndex < 0) this.db.data.tabs.push(tabData)
+    else this.db.data.tabs.splice(komariIndex, 0, tabData)
     this.db.write()
+    return true
   }
   removeTab(tabIndex) {
+    const tab = this.db.data.tabs && this.db.data.tabs[tabIndex]
+    if (isKomariTab(tab)) return false
     this.db.chain.get('tabs').remove((value, index, array) => {
       return index === tabIndex
     }).value()
     this.db.write()
+    return true
   }
   getDbInstance() {
     return this.db

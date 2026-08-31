@@ -5,7 +5,7 @@ import appDao from '../../../service/db/app-dao.js'
 import _ from 'lodash'
 import qbittorrentService from '../service/qbittorrent-service.js'
 import toString from 'stream-to-string'
-const TORRENT_PATH = '/var/aquardata/cache/'
+const TORRENT_PATH = `${process.env.AQUAR_DATA_PATH || '/var/aquardata'}/cache/`
 
 if (!fs.existsSync(TORRENT_PATH)){
   fs.mkdirSync(TORRENT_PATH, { recursive: true });

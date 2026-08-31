@@ -12,6 +12,7 @@ import dockerController from '../endpoints/docker/controller/docker-controller.j
 import searchController from '../endpoints/search/controller/search-controller.js'
 import transmissionController from '../endpoints/transmission/controller/transmission-controller.js'
 import qbittorrentController from '../endpoints/qbittorrent/controller/qbittorrent-controller.js'
+import komariController from '../controller/komari-controller.js'
 
 const router = koarouter()
 router.get('/', async (ctx, next) => {
@@ -49,6 +50,7 @@ router.post('/api/moveWidget', widgetController.moveWidget)
 router.get('/api/config', configController.config)
 router.post('/api/config/uploadBgImg',configController.bgImgUpload.single('bgImg'), configController.uploadBgImg)
 router.post('/api/config/update', configController.updateConfig)
+router.post('/komari-api/rpc2', komariController.rpc)
 router.get('/api/config/addTab', widgetController.addTab)
 router.post('/api/config/removeTab', widgetController.removeTab)
 router.post('/api/config/submitTabs', widgetController.submitTabs)

@@ -20,11 +20,11 @@
                 <v-text-field v-else single-line solo dense hide-details="true" label="标题" v-model="newTitle" class="aq-slim-text-field" style="width: 240px;" ></v-text-field>
               </v-list-item-content>
               <v-list-item-action style="display: flex; flex-direction: row;">
-                <v-btn depressed small text min-width="30px" width="30px" color="grey darken-1" @click="moveTab(index,-1)" title="上移"><v-icon>mdi-arrow-up-thick</v-icon></v-btn>
-                <v-btn depressed small text min-width="30px" width="30px" color="grey darken-1" @click="moveTab(index,1)" title="下移"><v-icon>mdi-arrow-down-thick</v-icon></v-btn>
-                <v-btn v-if="editIndex != index" depressed small text min-width="30px" width="30px" color="grey darken-1" @click="editTitle(index)" title="修改名称"><v-icon>mdi-pencil</v-icon></v-btn>
-                <v-btn v-else depressed small text min-width="30px" width="30px" @click="changeTitle(index)" color="grey darken-1" title="确定"><v-icon >mdi-check</v-icon></v-btn>
-                <v-btn depressed small text min-width="30px" width="30px" color="grey darken-1" @click="removeTab(index)" title="删除"><v-icon >mdi-delete</v-icon></v-btn>
+                <v-btn v-if="tab.type !== 'komari'" depressed small text min-width="30px" width="30px" color="grey darken-1" @click="moveTab(index,-1)" title="上移"><v-icon>mdi-arrow-up-thick</v-icon></v-btn>
+                <v-btn v-if="tab.type !== 'komari'" depressed small text min-width="30px" width="30px" color="grey darken-1" @click="moveTab(index,1)" title="下移"><v-icon>mdi-arrow-down-thick</v-icon></v-btn>
+                <v-btn v-if="tab.type !== 'komari' && editIndex != index" depressed small text min-width="30px" width="30px" color="grey darken-1" @click="editTitle(index)" title="修改名称"><v-icon>mdi-pencil</v-icon></v-btn>
+                <v-btn v-else-if="tab.type !== 'komari'" depressed small text min-width="30px" width="30px" @click="changeTitle(index)" color="grey darken-1" title="确定"><v-icon >mdi-check</v-icon></v-btn>
+                <v-btn v-if="tab.type !== 'komari'" depressed small text min-width="30px" width="30px" color="grey darken-1" @click="removeTab(index)" title="删除"><v-icon >mdi-delete</v-icon></v-btn>
                 <!-- <a style="margin: 0 4px; " @click="moveTab(index,-1)">↑上移</a>
                 <a style="margin: 0 4px; " @click="moveTab(index,1)">↓下移</a> -->
                 <!-- <a v-if="editIndex != index" style="margin: 0 4px; " @click="editTitle(index)">修改名称</a>
@@ -123,6 +123,7 @@ export default {
         })
     },
     removeTab(index){
+      if (this.tabs[index] && this.tabs[index].type === 'komari') return
       if(!confirm('确认删除该标签页？')){
         return
       }
@@ -134,6 +135,7 @@ export default {
         })
     },
     editTitle(index) {
+      if (this.tabs[index] && this.tabs[index].type === 'komari') return
       this.editIndex = index
       this.newTitle = this.tabs[index].title
     },
@@ -143,14 +145,12 @@ export default {
       this.newTitle = null
     },
     moveTab(index,foward) {
+      if (this.tabs[index] && this.tabs[index].type === 'komari') return
       this.newTitle = null
       this.editIndex = null
-      var start = index+foward
-      if(start < 0){
-        start = 0
-      }else if(start>this.tabs.length-1) {
-        start = this.tabs.length-1
-      }
+      var direction = foward < 0 ? -1 : 1
+      var start = index + direction
+      if(start < 0 || start >= this.tabs.length || (this.tabs[start] && this.tabs[start].type === 'komari')) return
       var movedTab = this.tabs[index]
       this.tabs.splice(index, 1)
       this.tabs.splice(start, 0, movedTab)

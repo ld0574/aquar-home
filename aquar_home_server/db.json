@@ -37,6 +37,14 @@
           }
         }
       ]
+    },
+    {
+      "title":"可用性",
+      "type":"komari",
+      "widgets":[],
+      "data": {
+        "server":"/komari-api"
+      }
     }
   ]
 }

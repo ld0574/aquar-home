@@ -2,7 +2,7 @@ import multer from '@koa/multer'
 import sha256 from 'crypto-js/sha256.js'
 import fs from 'fs'
 import iconAdvicer from './service/icon-advicer.js'
-const ICON_PATH = '/var/aquardata/icon_img/'
+const ICON_PATH = `${process.env.AQUAR_DATA_PATH || '/var/aquardata'}/icon_img/`
 
 if (!fs.existsSync(ICON_PATH)){
   fs.mkdirSync(ICON_PATH, { recursive: true });

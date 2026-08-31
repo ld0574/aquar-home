@@ -21,7 +21,7 @@
         <v-icon class="tcolor_sub" style="font-size:20px;" >mdi-help-circle-outline</v-icon>
         </v-btn>
         <v-divider class="mx-1" vertical></v-divider>
-        <v-btn v-if="!editing && curViewSize==='lg'" icon small  @click="editing=true" title="设置布局">
+        <v-btn v-if="!isKomariTab && !editing && curViewSize==='lg'" icon small  @click="editing=true" title="设置布局">
           <v-icon class="tcolor_primary" style="font-size:20px;" >mdi-view-dashboard</v-icon>
         </v-btn>
         <v-btn v-else-if="editing" icon small @click="confirmLayout()" title="确定布局">
@@ -33,6 +33,7 @@
       </div>
     </div>
     <grid-layout
+      v-if="!isKomariTab"
       :layout.sync="layout"
       :responsive="!editing"
       :col-num="12"
@@ -70,6 +71,11 @@
         </keep-alive>
       </grid-item>
     </grid-layout>
+    <KomariMonitor
+      v-else
+      :key="'komari_' + curTabIndex"
+      :config-data="currentTab.data"
+    />
     <v-dialog eager v-model="showConfigPanel" width="800px">
         <config />
     </v-dialog>
@@ -98,6 +104,7 @@ import QBittorrentWidget from '../components/widgets/QBittorrent'
 import ChatRoomWidget from '../components/widgets/ChatRoom'
 import Config from '../components/config/Config.vue' 
 import WidgetConfig from '../components/WidgetConfig.vue' 
+import KomariMonitor from '../components/komari/KomariMonitor.vue'
 
 export default {
   name: 'GridTable',
@@ -116,7 +123,8 @@ export default {
     QBittorrentWidget,
     ChatRoomWidget,
     Config,
-    WidgetConfig
+    WidgetConfig,
+    KomariMonitor
   },
   data() {
     return {
@@ -140,7 +148,13 @@ export default {
   computed: {
     ...mapGetters([
       'name'
-    ])
+    ]),
+    currentTab() {
+      return this.tabs[this.curTabIndex] || { type: 'grid', widgets: [], data: {} }
+    },
+    isKomariTab() {
+      return (this.currentTab.type || 'grid') === 'komari'
+    }
   },
   watch: {
     eventLog: function() {
@@ -165,22 +179,10 @@ export default {
       .then(response => {
         this.data = response.data
         var localTabIndex = localStorage.getItem("curTabIndex")
-        this.curTabIndex = localTabIndex ? parseInt(localTabIndex) : 0
-        this.tabs = this.data.tabs
-        if(this.curTabIndex >= this.tabs.length){
-          this.curTabIndex = 0
-        }
-        if(this.tabs && this.tabs.length > 0){
-          this.widgets = _.cloneDeep(this.tabs[this.curTabIndex].widgets)
-        }else {
-          this.widgets = []
-        }
-        this.layout = []
-        for (var i = 0; i < this.widgets.length; i++) {
-          this.layout.push(Object.assign(this.widgets[i].layout, { i: this.widgets[i].id }))
-        }
-        this.lgLayout = this.layout
-        this.responseLayout(this.curViewSize)
+        this.curTabIndex = localTabIndex ? parseInt(localTabIndex, 10) : 0
+        this.tabs = Array.isArray(this.data.tabs) ? this.data.tabs : []
+        this.normalizeTabIndex()
+        this.loadTabContent()
       })
   },
   beforeDestroy() {
@@ -266,26 +268,52 @@ export default {
       .then(response => {
         this.data = response.data
         if(curTabIndex!=null && curTabIndex!=undefined){
-          this.curTabIndex = curTabIndex
+          this.curTabIndex = parseInt(curTabIndex, 10)
         }else{
           var localTabIndex = localStorage.getItem("curTabIndex")
-          this.curTabIndex = localTabIndex ? parseInt(localTabIndex) : 0
+          this.curTabIndex = localTabIndex ? parseInt(localTabIndex, 10) : 0
         }
-        if(this.curTabIndex >= this.data.tabs.length ){
-          this.curTabIndex = this.data.tabs.length -1
-          localStorage.setItem("curTabIndex",this.curTabIndex)
-        }
-        this.tabs = this.data.tabs
-        this.widgets = _.cloneDeep(this.tabs[this.curTabIndex].widgets)
-        this.layout = []
-        for (var i = 0; i < this.widgets.length; i++) {
-          this.layout.push(Object.assign(this.widgets[i].layout, { i: this.widgets[i].id }))
-          this.$bus.emit('reload_'+this.widgets[i].id,{tabIndex:this.curTabIndex,configData:this.widgets[i]})
-        }
-        this.lgLayout = this.layout
-        this.updateCurViewSize()
-        this.responseLayout(this.curViewSize)
+        this.tabs = Array.isArray(this.data.tabs) ? this.data.tabs : []
+        this.normalizeTabIndex()
+        this.loadTabContent(true)
       })
+    },
+    normalizeTabIndex() {
+      if (!this.tabs.length) {
+        this.curTabIndex = 0
+        return
+      }
+      if (!Number.isInteger(this.curTabIndex) || this.curTabIndex < 0) {
+        this.curTabIndex = 0
+      } else if (this.curTabIndex >= this.tabs.length) {
+        this.curTabIndex = this.tabs.length - 1
+      }
+      localStorage.setItem('curTabIndex', this.curTabIndex)
+    },
+    loadTabContent(emitReload) {
+      const tab = this.currentTab
+      this.editing = false
+      if ((tab.type || 'grid') !== 'grid') {
+        this.widgets = []
+        this.layout = []
+        this.lgLayout = []
+        return
+      }
+      this.widgets = _.cloneDeep(Array.isArray(tab.widgets) ? tab.widgets : [])
+      this.layout = []
+      for (var i = 0; i < this.widgets.length; i++) {
+        const widget = this.widgets[i]
+        if (!widget.layout) {
+          widget.layout = { x: 0, y: i, w: 1, h: 1, i: widget.id }
+        }
+        this.layout.push(Object.assign(widget.layout, { i: widget.id }))
+        if (emitReload) {
+          this.$bus.emit('reload_'+widget.id,{tabIndex:this.curTabIndex,configData:widget})
+        }
+      }
+      this.lgLayout = this.layout
+      this.updateCurViewSize()
+      this.responseLayout(this.curViewSize)
     },
     updateConfig: function(newData) {
       console.log(newData)
@@ -296,6 +324,10 @@ export default {
         })
     },
     async confirmLayout() {
+      if (this.isKomariTab) {
+        this.editing = false
+        return
+      }
       let widgets = []
       for (let i = 0; i < this.layout.length; i++) {
         let curWidget = _.find(this.widgets, { 'id': this.layout[i].i })
@@ -381,6 +413,9 @@ export default {
       this.showWidgetConfig = true
     },
     addWidget(widget) {
+      if (this.isKomariTab) {
+        return
+      }
       var y = 0
       var h = 0
       for (var i = 0; i < this.layout.length; i++) {
@@ -398,6 +433,9 @@ export default {
         })
     },
     addWidgetBatch(widgets) {
+      if (this.isKomariTab) {
+        return
+      }
       var y = 0
       var h = 0
       for (var i = 0; i < this.layout.length; i++) {
@@ -429,6 +467,9 @@ export default {
         })
     },
     removeWidget(id) {
+      if (this.isKomariTab) {
+        return
+      }
       if(!confirm('确认删除该组件？')){
         return
       }
@@ -455,14 +496,7 @@ export default {
       }
       this.curTabIndex = index
       localStorage.setItem('curTabIndex',this.curTabIndex)
-      this.widgets = _.cloneDeep(this.tabs[index].widgets)
-      this.layout = []
-      for (var i = 0; i < this.widgets.length; i++) {
-        this.layout.push(Object.assign(this.widgets[i].layout, { i: this.widgets[i].id }))
-      }
-      this.lgLayout = this.layout
-      this.updateCurViewSize()
-      this.responseLayout(this.curViewSize)
+      this.loadTabContent()
       // this.$forceUpdate()
     },
     notify(data){

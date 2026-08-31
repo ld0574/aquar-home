@@ -4,7 +4,7 @@ import fs from 'fs'
 import _ from 'lodash'
 
 class ThemeDao {
-  DB_PATH = '/var/aquardata/db/'
+  DB_PATH = `${process.env.AQUAR_DATA_PATH || '/var/aquardata'}/db/`
   db = null
   constructor() {
     this.db = new LowSync(new JSONFileSync(this.DB_PATH+'themes.json'))

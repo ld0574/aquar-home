@@ -6,7 +6,7 @@ import stream from 'stream'
 import fs from 'fs'
 import sha256 from 'crypto-js/sha256.js'
 const dom = xmldom.DOMParser
-const CACHE_PATH = '/var/aquardata/cache/nextcloud/thumb/'
+const CACHE_PATH = `${process.env.AQUAR_DATA_PATH || '/var/aquardata'}/cache/nextcloud/thumb/`
 
 if (!fs.existsSync(CACHE_PATH)){
   fs.mkdirSync(CACHE_PATH, { recursive: true });

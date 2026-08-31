@@ -9,9 +9,11 @@ import app from './app.js'
 import SocketServer from './socket.js'
 import debug from 'debug'
 import https from 'https'
+import { attachKomariWebSocketProxy } from './service/komari-proxy.js'
 debug('demo:server')
 
-const CERT_PATH = '/var/aquardata/cert/'
+const DATA_ROOT = process.env.AQUAR_DATA_PATH || '/var/aquardata'
+const CERT_PATH = `${DATA_ROOT}/cert/`
 /**
  * Get port from environment and store in Express.
  */
@@ -37,6 +39,7 @@ const options = {
 };
 var server = https.createServer(options,app.callback());
 var socketServer = new SocketServer(server);
+attachKomariWebSocketProxy(server)
 /**
  * Listen on provided port, on all network interfaces.
  */

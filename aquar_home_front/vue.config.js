@@ -29,7 +29,7 @@ module.exports = {
     proxy: {
       '/api': {
         target: 'https://localhost:8172',
-        secusecure: false,
+        secure: false,
         changeOrigin: true,
         disableHostCheck: true,
         // onProxyReq: function(proxyReq, req, res, options) {
@@ -51,6 +51,13 @@ module.exports = {
         // pathRewrite: {
         //   '^/api': '/'
         // }
+      },
+      '/komari-api': {
+        target: 'https://localhost:8172',
+        ws: true,
+        secure: false,
+        changeOrigin: true,
+        disableHostCheck: true
       },
       '/img': {
         target: 'https://localhost:8172',

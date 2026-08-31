@@ -8,7 +8,7 @@
       </v-row>
       <v-row justify="end" align="center" dense class="py-2">
         <v-col cols="3">
-          <v-btn depressed small color="primary" @click="moveWidget()" style="margin:0 4px; width: 100%;">
+          <v-btn depressed small color="primary" :disabled="selectedTab === null" @click="moveWidget()" style="margin:0 4px; width: 100%;">
             <v-icon small>mdi-check</v-icon>
             提交
           </v-btn>
@@ -24,7 +24,7 @@ export default {
   name: 'WidgetMove',
   props: {
     tabIndex: {type: Number,default: 0},
-    configData: { type: Object, default: () => {} }
+    configData: { type: Object, default: () => ({}) }
   },
   data: function() {
     return {
@@ -39,9 +39,12 @@ export default {
       .get('/api/allData')
       .then(response => {
         let tmpTabs =  _.cloneDeep(response.data.tabs)
-        tmpTabs = tmpTabs.map((tab, index) => {return {text:tab.title,value:index}})
-        tmpTabs.splice(this.tabIndex, 1)
+        tmpTabs = tmpTabs
+          .map((tab, index) => ({ tab, index }))
+          .filter(item => item.index !== this.tabIndex && (item.tab.type || 'grid') === 'grid')
+          .map(item => ({text:item.tab.title,value:item.index}))
         this.tabs = tmpTabs
+        this.selectedTab = tmpTabs.length ? tmpTabs[0].value : null
         this.$forceUpdate()
       })
   },
@@ -51,13 +54,14 @@ export default {
   },
   methods: {
     moveWidget() {
+      if (this.selectedTab === null || this.selectedTab === undefined) return
       this.$axios
       .post('/api/moveWidget', {fromTab: this.tabIndex, widgetId: this.configData.id, toTab: this.selectedTab})
-      .then(response => {
-        console.log(response.data)
-      })
-      this.$bus.emit('refresh', null)
-      this.$bus.emit('closeWidgetConfig', null)
+        .then(response => {
+          console.log(response.data)
+          this.$bus.emit('refresh', null)
+          this.$bus.emit('closeWidgetConfig', null)
+        })
     },
   }
 }

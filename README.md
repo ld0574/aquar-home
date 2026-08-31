@@ -45,48 +45,137 @@ AquarHome的核心特性：
 
 ### Docker方式
 
-AquarHome的部署推荐使用docker-compose方式。
+AquarHome推荐使用 Docker Compose v2 部署。宿主机需要先安装 Docker Engine 和 Docker Compose，本文使用的新命令是 `docker compose`；如果你的环境只有旧版独立命令，也可以将下文的 `docker compose` 替换为 `docker-compose`。
 
-0.docker及docker-compose的安装不是本文档的重点，请参考其他资料安装。
+#### 使用镜像部署
 
-1.在准备好docker-compose环境后，创建一个新文件夹。
+1.创建部署目录并准备数据、日志和文件同步目录：
 
-例如:`mkdir aquarhome`
+```bash
+mkdir -p aquarhome/data/cert aquarhome/aquarpool aquarhome/logs
+cd aquarhome
+```
 
-2.在文件夹中创建一个docker-compose.yml文件。
+2.在该目录创建 `.env` 文件。Komari 不是必选项；如果暂时不使用“可用性”Tab，可以先将 `KOMARI_SERVER` 留空。
 
-`touch docker-compose.yml`
+```dotenv
+# 使用已发布镜像；部署当前源码时改为 aquarhome:local
+AQUAR_IMAGE=finetu/aquarhome:latest
+AQUAR_PORT=8172
 
-3.将下面的配置粘贴在文档中,然后根据你自己的目录结构指定好三个docker卷挂载点。
+# 必须填写容器内部可以访问到的 Komari 地址；留空表示不启用 Komari
+KOMARI_SERVER=
+# 例如：Bearer your-komari-token
+KOMARI_AUTHORIZATION=
+KOMARI_PROXY_TIMEOUT=15000
+TZ=Asia/Shanghai
+```
 
-``` yml
-version: "3"
+3.在同一目录创建 `docker-compose.yml`：
+
+```yaml
 services:
   aquarhome:
-  image: finetu/aquarhome:latest
-  container_name: aquarhome 
-  environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Shanghai
-  volumes:
-      - your/path/to/data:/var/aquardata #数据目录，包含核心配置数据，缓存/上传文件等
-      - your/path/to/aquarpool:/opt/aquarpool #供文件同步功能使用，若不需要此功能可选择一个空文件夹填写
-      - /opt/aquar/storages/apps/aquarhome/logs:/root/.pm2/logs #日志文件
-  ports:
-      - 8172:8172
-      - 10000-10100:10000-10100 #视频聊天组件需要预留100个端口作为流媒体的数据通道
-  restart: unless-stopped
+    image: ${AQUAR_IMAGE:-finetu/aquarhome:latest}
+    container_name: aquarhome
+    environment:
+      PORT: ${AQUAR_PORT:-8172}
+      TZ: ${TZ:-Asia/Shanghai}
+      AQUAR_DATA_PATH: /var/aquardata
+      KOMARI_SERVER: ${KOMARI_SERVER:-}
+      KOMARI_AUTHORIZATION: ${KOMARI_AUTHORIZATION:-}
+      KOMARI_PROXY_TIMEOUT: ${KOMARI_PROXY_TIMEOUT:-15000}
+    volumes:
+      - ./data:/var/aquardata
+      - ./aquarpool:/opt/aquarpool
+      - ./logs:/root/.pm2/logs
+    ports:
+      - "${AQUAR_PORT:-8172}:${AQUAR_PORT:-8172}"
+      # 视频聊天组件使用 mediasoup；不需要视频聊天时可以删除这一行。
+      - "10000-10100:10000-10100"
+    restart: unless-stopped
 ```
 
-4.在aquarhome目录下，执行使用docker-compose启动容器。顺便一提，由于docker-compose是一个python工具，而python有时会使用虚拟环境，如果你发现自己安装了docker-compose后仍然无法使用docker-compose命令，可以确认一下自己当前所在的pyhton环境到底是哪一个。
+4.先校验 Compose 配置，再启动容器：
 
-``` bash 
-cd aquarhome
-docker-compose up -d
+```bash
+docker compose config
+docker compose pull
+docker compose up -d
+docker compose ps
 ```
 
-5.docker-compose正常启动后，访问宿主机在内网中的地址，如[https://192.168.0.117:8172](#)，注意是HTTPS协议，如果部署成功，第一次打开页面时浏览器会报告SSL证书不安全，原因是AquarHome内置了默认的自签名证书，点击“继续前往”如果可以看到AquarHome的登录页面就可以开始设置属于自己的AquarHome了。
+如果使用的是本仓库当前代码，请参阅下面的“从当前源码构建镜像”，不要假设远端 `finetu/aquarhome:latest` 已经包含最新提交。
+
+5.启动后访问 `https://<服务器地址>:8172`（如果修改了 `AQUAR_PORT`，使用对应端口）。AquarHome 默认使用自签名 HTTPS 证书，浏览器首次访问时出现证书警告属于正常现象；确认继续访问后即可进入登录页。
+
+#### 从当前源码构建镜像
+
+在本仓库根目录执行：
+
+```bash
+docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t aquarhome:local .
+```
+
+构建完成后，将部署目录 `.env` 中的 `AQUAR_IMAGE` 改为 `aquarhome:local`，再执行：
+
+```bash
+docker compose up -d
+```
+
+构建阶段会安装 mediasoup 的编译依赖并构建前端，首次构建可能需要较长时间和稳定的外网访问。仓库中的 `Dockerfile_alpine` 当前实际使用的也是 `node:16-slim`，因此默认使用 `Dockerfile` 即可。
+
+#### Komari 可用性页配置
+
+AquarHome 内置的“可用性”Tab 通过后端代理访问 Komari，不会把 Komari 地址或固定令牌暴露给浏览器。`KOMARI_SERVER` 必须是 **Aquar 容器内部可以访问的地址**，不能只在宿主机浏览器中可访问。
+
+支持以下写法：
+
+```text
+https://komari.example.com
+https://example.com/komari
+https://example.com/komari/api/rpc2
+```
+
+程序会分别请求 `/api/rpc2`、`/komari/api/rpc2` 或给定的完整 RPC 地址。常见部署方式如下：
+
+- Komari 与 Aquar 在同一个 Compose 网络：填写 `http://<komari服务名>:<Komari端口>`。
+- Komari 运行在宿主机：填写容器能访问的宿主机地址和端口；Linux 环境不要直接使用容器内的 `localhost`，因为它指向 Aquar 容器自身。
+- Komari 使用 HTTPS 自签名证书：后端代理已允许上游自签名证书，但仍需确认容器内 DNS、路由和防火墙可达。
+
+`KOMARI_AUTHORIZATION` 为可选的固定上游请求头，例如 `Bearer your-komari-token`。`KOMARI_PROXY_TIMEOUT` 单位为毫秒，默认 `15000`。未配置 `KOMARI_SERVER` 时，AquarHome 其余功能不受影响，仅“可用性”页提示未配置 Komari。
+
+#### 数据、证书、升级与日志
+
+所有需要持久化的数据都在宿主机的 `./data` 目录中，包含核心配置、上传图片、缓存和证书。自定义 HTTPS 证书请放入 `./data/cert/`，并严格命名为：
+
+```text
+./data/cert/aquarhome.crt
+./data/cert/aquarhome.key
+```
+
+证书必须是 PEM 格式；只放入其中一个文件时，程序会继续使用内置证书。升级前建议备份 `./data`，然后执行：
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+不要使用 `docker compose down -v`，否则可能删除 Compose 管理的卷。当前示例使用 bind mount，容器删除或重建不会删除 `./data`。
+
+查看日志：
+
+```bash
+docker compose logs -f --tail=200 aquarhome
+```
+
+排查启动问题时，优先检查以下项目：
+
+- `docker compose config` 是否能成功解析，尤其是 `.env` 中的特殊字符。
+- `docker compose ps` 中容器是否处于 `Up` 状态。
+- `./data`、`./aquarpool` 和 `./logs` 是否存在且可写。
+- 访问地址是否使用 HTTPS，以及宿主机防火墙是否放行 `AQUAR_PORT`。
+- Komari 是否从容器内部可达；未配置或不可达时只会影响“可用性”页。
 
 ### 源码方式
 

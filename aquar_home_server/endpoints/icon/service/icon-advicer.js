@@ -2,7 +2,7 @@ import axios from "axios"
 import fs from 'fs'
 import sha256 from 'crypto-js/sha256.js'
 import appDao from "../../../service/db/app-dao.js"
-const CACHE_PATH = '/var/aquardata/icon_img/'
+const CACHE_PATH = `${process.env.AQUAR_DATA_PATH || '/var/aquardata'}/icon_img/`
 const CONFIG_PATH_PREFIX = '/icon_img/'
 const RE_URL = /^http.*\:\/\/.+$/i
 const RE_MAIN_SITE = /^http.*\:\/\/.+?\//i

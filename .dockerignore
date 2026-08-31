@@ -1,0 +1,11 @@
+.git
+.gitignore
+.DS_Store
+
+**/node_modules
+**/dist
+**/logs
+**/*.log
+aquar_home_server/node_modules.tar.gz
+
+Aquar_Komari_Integration_Plan.md

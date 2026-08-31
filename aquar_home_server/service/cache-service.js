@@ -6,7 +6,7 @@ import appDao from './db/app-dao.js'
 import _ from 'lodash'
 
 class CacheService {
-  DATA_PATH = '/var/aquardata'
+  DATA_PATH = process.env.AQUAR_DATA_PATH || '/var/aquardata'
   STATIC_FILES = ['db.json']
   RE_CACHE_FILE = /"\/.+?\..+?"/g
   DATA_EXPORT_PATH = '/tmp/aquardata.zip'
@@ -20,7 +20,7 @@ class CacheService {
 
   async clearCache(){
     var allCacheFiles = []
-    fileUtil.listFilesRecursive('/var/aquardata',allCacheFiles)
+    fileUtil.listFilesRecursive(this.DATA_PATH,allCacheFiles)
     var dataStr = JSON.stringify(appDao.allData())
     var cacheFilesInUse = dataStr.match(this.RE_CACHE_FILE)
     cacheFilesInUse = cacheFilesInUse.map( s => {
@@ -69,11 +69,12 @@ class CacheService {
       return {code: -1, msg:"数据文件结构不完整"}
     }
     console.log('开始导入数据')
-    zip.extractEntryTo("bg_img/", "/var/aquardata/bg_img", /*maintainEntryPath*/ false, /*overwrite*/ true)
-    zip.extractEntryTo("icon_img/", "/var/aquardata/icon_img", /*maintainEntryPath*/ false, /*overwrite*/ true)
-    for(let tab of importedDB.tabs) {
+    zip.extractEntryTo("bg_img/", `${this.DATA_PATH}/bg_img`, /*maintainEntryPath*/ false, /*overwrite*/ true)
+    zip.extractEntryTo("icon_img/", `${this.DATA_PATH}/icon_img`, /*maintainEntryPath*/ false, /*overwrite*/ true)
+    for(let tab of (Array.isArray(importedDB.tabs) ? importedDB.tabs : [])) {
+      if (!tab) continue
       console.log(`导入tab页: ${tab.title}`)
-      appDao.addTab(tab)
+      if (tab.type !== 'komari') appDao.addTab(tab)
     }
     fs.rmSync(this.DATA_IMPORT_PATH)
     return {code: 0, msg:"数据导入成功"}

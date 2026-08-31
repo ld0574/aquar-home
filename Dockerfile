@@ -9,7 +9,7 @@ COPY ./aquar_home_front/ ./
 RUN npm install --registry ${NPM_REGISTRY} && npm run build
 WORKDIR /app/aquar_home/aquar_home_server
 COPY ./aquar_home_server/ ./
-RUN rm -rf ./aquar_home_server/public/ && cp -r /app/aquar_home/aquar_home_front/dist/* /app/aquar_home/aquar_home_server/public/
+RUN rm -rf ./public/ && mkdir -p ./public/ && cp -r /app/aquar_home/aquar_home_front/dist/* ./public/
 RUN PYTHON=python3 npm install --unsafe-perm --registry ${NPM_REGISTRY}
 
 FROM node:16-slim
@@ -23,4 +23,4 @@ VOLUME ["/var/aquardata"]
 VOLUME ["/opt/aquarpool"]
 VOLUME ["/root/.pm2/logs"]
 
-CMD ["/bin/sh", "-c", "cd /app/aquar_home && mkdir -p /var/aquardata/log/ && npm run dcprd > /root/.pm2/logs/aquar_home.log 2>&1"]
+CMD ["/bin/sh", "-c", "cd /app/aquar_home && mkdir -p /var/aquardata/log/ /root/.pm2/logs && npm run dcprd > /root/.pm2/logs/aquar_home.log 2>&1"]

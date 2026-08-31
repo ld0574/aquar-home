@@ -5,7 +5,7 @@ import fs from 'fs'
 import appDao from '../service/db/app-dao.js'
 import themeDao from '../service/db/theme-dao.js'
 import cacheService from '../service/cache-service.js'
-const BG_PATH = '/var/aquardata/bg_img/'
+const BG_PATH = `${process.env.AQUAR_DATA_PATH || '/var/aquardata'}/bg_img/`
 const IMPORT_FILE_PATH = '/tmp/'
 
 if (!fs.existsSync(BG_PATH)){
