@@ -107,7 +107,7 @@ cat > /opt/aquar/src/docker-compose/docker-compose.yml <<EOF
 version: "3"
 services:
   aquarhome:
-    image: finetu/aquarhome:latest
+    image: ld0574/aquarhome:latest
     container_name: aquarhome 
     environment:
       - PUID=1000

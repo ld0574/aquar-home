@@ -59,8 +59,8 @@ cd aquarhome
 2.在该目录创建 `.env` 文件。Komari 不是必选项；如果暂时不使用“可用性”Tab，可以先将 `KOMARI_SERVER` 留空。
 
 ```dotenv
-# 使用已发布镜像；部署当前源码时改为 aquarhome:local
-AQUAR_IMAGE=finetu/aquarhome:latest
+# 使用 Docker Hub 镜像；如果不推送镜像，改为 aquarhome:local
+AQUAR_IMAGE=ld0574/aquarhome:latest
 AQUAR_PORT=8172
 
 # 必须填写容器内部可以访问到的 Komari 地址；留空表示不启用 Komari
@@ -76,7 +76,7 @@ TZ=Asia/Shanghai
 ```yaml
 services:
   aquarhome:
-    image: ${AQUAR_IMAGE:-finetu/aquarhome:latest}
+    image: ${AQUAR_IMAGE:-ld0574/aquarhome:latest}
     container_name: aquarhome
     environment:
       PORT: ${AQUAR_PORT:-8172}
@@ -105,7 +105,7 @@ docker compose up -d
 docker compose ps
 ```
 
-如果使用的是本仓库当前代码，请参阅下面的“从当前源码构建镜像”，不要假设远端 `finetu/aquarhome:latest` 已经包含最新提交。
+上面的方式会从 Docker Hub 使用 `ld0574/aquarhome:latest`。如果使用的是本仓库当前代码，请参阅下面的“从当前源码构建镜像”；本地构建的镜像不需要推送到 Docker Hub。
 
 5.启动后访问 `https://<服务器地址>:8172`（如果修改了 `AQUAR_PORT`，使用对应端口）。AquarHome 默认使用自签名 HTTPS 证书，浏览器首次访问时出现证书警告属于正常现象；确认继续访问后即可进入登录页。
 
@@ -117,13 +117,48 @@ docker compose ps
 docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t aquarhome:local .
 ```
 
-构建完成后，将部署目录 `.env` 中的 `AQUAR_IMAGE` 改为 `aquarhome:local`，再执行：
+构建完成后，将部署目录 `.env` 中的 `AQUAR_IMAGE` 改为 `aquarhome:local`：
+
+```dotenv
+AQUAR_IMAGE=aquarhome:local
+```
+
+然后在部署目录执行。`--pull never` 可确保 Compose 只使用本机已经构建好的镜像，不尝试从 Docker Hub 拉取：
 
 ```bash
-docker compose up -d
+docker compose up --pull never -d
+docker compose ps
 ```
 
 构建阶段会安装 mediasoup 的编译依赖并构建前端，首次构建可能需要较长时间和稳定的外网访问。仓库中的 `Dockerfile_alpine` 当前实际使用的也是 `node:16-slim`，因此默认使用 `Dockerfile` 即可。
+
+镜像名只是本机 tag，不代表镜像已经推送到仓库。也可以直接使用与 Docker Hub 相同的 tag 构建，但不执行 `docker push`：
+
+```bash
+docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t ld0574/aquarhome:latest .
+```
+
+将 `.env` 中的 `AQUAR_IMAGE` 保持为 `ld0574/aquarhome:latest`，再执行：
+
+```bash
+docker compose up --pull never -d
+```
+
+如果要在另一台服务器使用本地构建的镜像，也不需要推送到 Docker Hub，可以导出并导入镜像：
+
+```bash
+# 当前项目根目录
+docker save -o aquarhome.tar aquarhome:local
+scp aquarhome.tar user@server:/tmp/
+```
+
+在目标服务器执行：
+
+```bash
+docker load -i /tmp/aquarhome.tar
+# 部署目录 .env 中使用 AQUAR_IMAGE=aquarhome:local
+docker compose up --pull never -d
+```
 
 #### Komari 可用性页配置
 

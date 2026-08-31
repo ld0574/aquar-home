@@ -264,7 +264,7 @@ services:
       - "/opt/aquar/storages/apps/navidrome/data:/data"
       - "/opt/aquar/storages/aquarpool/music:/music:ro"
   aquarhome:
-    image: finetu/aquarhome:latest
+    image: ld0574/aquarhome:latest
     container_name: aquarhome 
     environment:
       - PUID=1000
