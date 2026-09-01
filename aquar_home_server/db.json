@@ -12,6 +12,10 @@
       "bgBlur": "0",
       "theme": "vscode",
       "themeSerial":"0"
+    },
+    "komari": {
+      "server": "",
+      "secret": ""
     }
   },
   "tabs": [

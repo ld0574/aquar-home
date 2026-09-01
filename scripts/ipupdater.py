@@ -11,7 +11,7 @@
 # [Service]
 # Type=simple
 # User=root
-# ExecStart=python3 /root/ipupdater.py 
+# ExecStart=python3 /opt/aquar/src/aquar-home/scripts/ipupdater.py
 # 
 # [Install]
 # WantedBy=multi-user.target

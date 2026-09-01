@@ -1,4 +1,4 @@
-# /bin/bash
+#!/usr/bin/env bash
 pm2 stop all
 cd /opt/aquar/src/aquar-home
 git pull

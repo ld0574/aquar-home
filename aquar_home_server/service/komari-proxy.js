@@ -7,6 +7,30 @@ import appDao from './db/app-dao.js'
 const KOMARI_RPC_PATH = '/api/rpc2'
 const DEFAULT_TIMEOUT = 15000
 
+function storedKomariConfig() {
+  const config = appDao.getKomariConfig()
+  return config && typeof config === 'object' ? config : {}
+}
+
+function configuredValue(key, environmentKey) {
+  const storedValue = storedKomariConfig()[key]
+  if (storedValue !== undefined && storedValue !== null && String(storedValue).trim()) {
+    return String(storedValue).trim()
+  }
+  return process.env[environmentKey]
+}
+
+function configuredAuthorization() {
+  const value = configuredValue('secret', 'KOMARI_AUTHORIZATION')
+  if (!value) return ''
+  const authorization = String(value).trim()
+  // The UI accepts either a raw Komari token or a complete authorization
+  // value such as “Bearer token”. Keep existing env-based values compatible.
+  return /^[A-Za-z][A-Za-z0-9_-]*\s+\S+$/.test(authorization)
+    ? authorization
+    : `Bearer ${authorization}`
+}
+
 export class KomariProxyError extends Error {
   constructor(message, statusCode = 502) {
     super(message)
@@ -16,7 +40,7 @@ export class KomariProxyError extends Error {
 }
 
 function configuredServer() {
-  const value = process.env.KOMARI_SERVER || process.env.KOMARI_URL
+  const value = configuredValue('server', 'KOMARI_SERVER') || process.env.KOMARI_URL
   if (!value || !String(value).trim()) return null
 
   let url
@@ -56,7 +80,7 @@ function upstreamHeaders() {
     Accept: 'application/json',
     'Content-Type': 'application/json'
   }
-  const authorization = process.env.KOMARI_AUTHORIZATION
+  const authorization = configuredAuthorization()
   if (authorization) headers.Authorization = authorization
   return headers
 }
@@ -146,8 +170,9 @@ function proxyUpgrade(req, clientSocket, head, target, requestUrl) {
   lines.push(`Host: ${targetUrl.host}`)
   lines.push('Connection: Upgrade')
   lines.push('Upgrade: websocket')
-  if (process.env.KOMARI_AUTHORIZATION) {
-    lines.push(`Authorization: ${process.env.KOMARI_AUTHORIZATION}`)
+  const authorization = configuredAuthorization()
+  if (authorization) {
+    lines.push(`Authorization: ${authorization}`)
   }
 
   let connected = false

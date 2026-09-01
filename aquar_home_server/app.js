@@ -20,6 +20,21 @@ const DATA_ROOT = process.env.AQUAR_DATA_PATH || '/var/aquardata'
 const DB_PATH = `${DATA_ROOT}/db/`
 const __dirname = path.resolve();
 
+function redactSensitive(value) {
+  if (Array.isArray(value)) return value.map(redactSensitive)
+  if (!value || typeof value !== 'object') return value
+
+  const result = {}
+  Object.keys(value).forEach(key => {
+    if (/(password|secret|authorization|token)/i.test(key)) {
+      result[key] = '[REDACTED]'
+    } else {
+      result[key] = redactSensitive(value[key])
+    }
+  })
+  return result
+}
+
 if (!fs.existsSync(DB_PATH+'themes.json')){
   let defaultConfig = '{"themes":[]}'
   fs.mkdirSync(DB_PATH, { recursive: true });
@@ -58,7 +73,7 @@ app.use(views(__dirname + '/views', {
 // logger
 app.use(async (ctx, next) => {
   const start = new Date()
-  console.log(`${moment().format()} request: ${ctx.method} ${ctx.url}, body:${JSON.stringify(ctx.request.body)}`)
+  console.log(`${moment().format()} request: ${ctx.method} ${ctx.url}, body:${JSON.stringify(redactSensitive(ctx.request.body))}`)
   await next()
   const end = new Date() 
   const ms = end - start
@@ -67,11 +82,15 @@ app.use(async (ctx, next) => {
 
 if(process.env.NODE_ENV != 'dev'){
   console.log('token校验开启'+process.env.NODE_ENV)
+  const isPublicRequest = ctx => {
+    const requestPath = ctx.path || ''
+    return /\/assets/.test(requestPath) ||
+      requestPath === '/api/login' ||
+      (ctx.method === 'GET' && requestPath === '/api/config')
+  }
   app.use(koajwt({
     secret: appDao.getSecret()
-  }).unless({ // 配置白名单
-    path: [ /\/assets/, /\/api\/login/, /\/api\/config/]
-  }))
+  }).unless({ custom: isPublicRequest }))
 }else{
   console.log('开发环境关闭token校验')
 }

@@ -1,9 +1,13 @@
-# sudo -i
-pubip=$1
-if [ "$pubip" == "" ]; then
-    echo "ERROR:未传入节点的公网ip地址作为脚本参数"
+#!/usr/bin/env bash
+
+# cp /root/.pydistutils.cfg /root/.pydistutils.cfg.bak
+# cp /root/.pip/pip.conf /root/.pip/pip.conf.bak
+gitrepo=$1
+if [ "$gitrepo" == "" ]; then
+    echo "ERROR:未传入aquarhome仓库地址作为脚本参数"
     exit 0
 fi
+
 echo '********清理被阿里云污染的源配置信息********'
 /dev/null > /root/.pip/pip.conf
 /dev/null > /root/.pydistutils.cfg
@@ -21,7 +25,6 @@ deb http://security.ubuntu.com/ubuntu jammy-security universe
 deb http://security.ubuntu.com/ubuntu jammy-security multiverse
 
 EOF
-
 echo '********开始初始化aquar环境********'
 apt update
 apt install -y vim 
@@ -105,19 +108,38 @@ touch /opt/aquar/src/docker-compose/docker-compose.yml
 cat > /opt/aquar/src/docker-compose/docker-compose.yml <<EOF
 version: "3"
 services:
-  openvpn:
-    image: kylemanna/openvpn:latest
-    container_name: openvpn
-    cap_add:
-      - NET_ADMIN
+  aquarhome:
+    image: ld0574/aquarhome:latest
+    container_name: aquarhome 
     environment:
+      - PUID=1000
+      - PGID=1000
       - TZ=Asia/Shanghai
     volumes:
-      - /opt/aquar/storages/apps/openvpn/:/etc/openvpn
+      - /opt/aquar/storages/apps/aquarhome/data:/var/aquardata
+      - /opt/aquar/storages/aquarpool:/opt/aquarpool
+      - /opt/aquar/storages/apps/aquarhome/logs:/root/.pm2/logs
     ports:
-      - 45632:1194
-      - 45632:1194/udp
+      - 8172:8172
+      - 10000-10100:10000-10100
     restart: unless-stopped
+EOF
+mkdir -p /opt/aquar/src/docker-compose/mariadb.init.d
+touch /opt/aquar/src/docker-compose/mariadb.init.d/init.sql
+cat > /opt/aquar/src/docker-compose/mariadb.init.d/init.sql <<EOF
+CREATE DATABASE IF NOT EXISTS nextcloud;
+CREATE DATABASE IF NOT EXISTS piwigo;
+CREATE DATABASE IF NOT EXISTS shinobi;
+CREATE DATABASE IF NOT EXISTS ccio;
+CREATE DATABASE IF NOT EXISTS photoprism;
+CREATE DATABASE IF NOT EXISTS filerun;
+CREATE USER 'root'@'localhost' IDENTIFIED BY 'root';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+EOF
+cat >  /etc/docker/daemon.json <<EOF
+{
+"registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+}
 EOF
 
 echo '********设置开机自启动docker-compose********'
@@ -140,20 +162,26 @@ WantedBy=multi-user.target
 EOF
 systemctl enable aquar
 
-echo '********设置开机自启动docker-compose********'
-OVPN_DATA=/opt/aquar/storages/apps/openvpn
-# docker volume create --name $OVPN_DATA
-# 初始化配置
-docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u udp://$pubip
-# 生成私钥
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
-# 启动服务端容器
-# docker run -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
-# 生成客户端凭证
-echo 'docker run -v /opt/aquar/storages/apps/openvpn:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full aquarproxy nopass'
-# 导出配置文件至/root/aquarproxy.ovpn
-echo 'docker run -v /opt/aquar/storages/apps/openvpn:/etc/openvpn --rm kylemanna/openvpn ovpn_getclient aquarproxy > /root/aquarproxy.ovpn'
+# 
+# 生产环境打包
+echo <<COMMENT
+cd /opt/aquar/src
+git config --global http.sslverify false
+git clone $gitrepo
+cd /opt/aquar/src/aquar-home
+bash ./scripts/deploy_docker.sh
+COMMENT
 
-## 客户端安装openvpn
-# sudo apt-get install openvpn
-# sudo openvpn --config aquarproxy.ovpn
+#
+# 源码编译环境
+<<COMMENT
+git config --global http.sslverify false
+git clone $gitrepo
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+source /root/.bashrc
+nvm install 22
+nvm alias default 22
+nvm use 22
+cd /root/aquar-home/aquar_home_server/
+npm ci --omit=dev
+COMMENT

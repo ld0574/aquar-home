@@ -10,7 +10,7 @@
 # [Service]
 # Type=simple
 # User=root
-# ExecStart=python3 /opt/aquar/src/truenasseeker.py
+# ExecStart=python3 /opt/aquar/src/aquar-home/scripts/truenasseeker.py
 # 
 # [Install]
 # WantedBy=multi-user.target
@@ -92,8 +92,8 @@ def updatefstab(nfsAdress):
     fstabFile = open("/etc/fstab", "r+")
 
     configText = fstabFile.read()
-    prepart = re.split("##\[aquar config start\]##", configText)[0]
-    postpart = re.split("##\[aquar config end\]##", configText)[1]
+    prepart = re.split(r"##\[aquar config start\]##", configText)[0]
+    postpart = re.split(r"##\[aquar config end\]##", configText)[1]
     nfsConfig = "\n##[aquar config start]##\n %s:/mnt/aquarpool /opt/aquar/storages/aquarpool nfs defaults,_netdev 0 0\n##[aquar config end]##\n" % nfsAdress
     logger.info("new nfs config:")
     logger.info(nfsConfig)

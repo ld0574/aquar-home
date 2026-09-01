@@ -6,6 +6,46 @@ import moment from 'moment'
 import _ from 'lodash'
 const DATA_ROOT = process.env.AQUAR_DATA_PATH || '/var/aquardata'
 const DB_PATH = `${DATA_ROOT}/db/`
+const DEFAULT_KOMARI_CONFIG = {
+  server: '',
+  secret: ''
+}
+
+function isObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function hasOwn(object, key) {
+  return isObject(object) && Object.prototype.hasOwnProperty.call(object, key)
+}
+
+// Add new settings to existing db.json files without replacing any user data.
+function ensureConfig(data) {
+  let changed = false
+  if (!isObject(data.config)) {
+    data.config = {}
+    changed = true
+  }
+  if (!isObject(data.config.komari)) {
+    data.config.komari = {}
+    changed = true
+  }
+  Object.keys(DEFAULT_KOMARI_CONFIG).forEach(key => {
+    if (!hasOwn(data.config.komari, key)) {
+      data.config.komari[key] = DEFAULT_KOMARI_CONFIG[key]
+      changed = true
+    }
+  })
+  return changed
+}
+
+function publicConfig(config) {
+  const result = _.cloneDeep(config || {})
+  if (!isObject(result.komari)) result.komari = _.cloneDeep(DEFAULT_KOMARI_CONFIG)
+  result.komari.secretConfigured = Boolean(config && config.komari && config.komari.secret)
+  result.komari.secret = ''
+  return result
+}
 
 const KOMARI_TAB = {
   title: '可用性',
@@ -37,7 +77,10 @@ class AppDao {
   init(){
     this.db = new LowSync(new JSONFileSync(DB_PATH+'db.json'))
     this.db.read()
+    if (!isObject(this.db.data)) this.db.data = {}
+    const configChanged = ensureConfig(this.db.data)
     this.db.chain = _.chain(this.db.data)
+    if (configChanged) this.db.write()
   }
 
   saveAppEntry(tabIndex,entry) {
@@ -123,12 +166,42 @@ class AppDao {
     this.db.write()
   }
   updateConfig(config) {
-    this.db.chain.get('config').assign(config).value()
+    const incoming = isObject(config) ? _.cloneDeep(config) : {}
+    const incomingKomari = isObject(incoming.komari) ? incoming.komari : null
+    delete incoming.komari
+
+    this.db.chain.get('config').assign(incoming).value()
+    ensureConfig(this.db.data)
+
+    if (incomingKomari) {
+      const nextKomari = Object.assign({}, this.db.data.config.komari)
+      if (hasOwn(incomingKomari, 'server')) {
+        nextKomari.server = String(incomingKomari.server || '').trim()
+      }
+      if (incomingKomari.clearSecret === true) {
+        nextKomari.secret = ''
+      } else if (hasOwn(incomingKomari, 'secret')) {
+        // An empty secret means “keep the existing one”, so a normal settings
+        // save can never accidentally erase a stored credential.
+        const secret = String(incomingKomari.secret || '').trim()
+        if (secret) nextKomari.secret = secret
+      }
+      delete nextKomari.clearSecret
+      delete nextKomari.secretConfigured
+      this.db.data.config.komari = nextKomari
+    }
     this.db.write()
   }
   getConfig() {
     var res = this.db.data.config
     return res
+  }
+  getPublicConfig() {
+    return publicConfig(this.getConfig())
+  }
+  getKomariConfig() {
+    const config = this.getConfig()
+    return isObject(config.komari) ? config.komari : DEFAULT_KOMARI_CONFIG
   }
   updateAuth(authData) {
     this.db.chain.get('auth').assign(authData).value()
@@ -186,6 +259,7 @@ class AppDao {
     var res = this.db.data
     res = _.cloneDeep(res)
     delete res.auth
+    res.config = publicConfig(res.config)
     // Existing installations may have been created before the monitor tab
     // existed. Expose an append-only virtual tab without rewriting their DB.
     ensureTabs(res)

@@ -38,7 +38,7 @@ Aquar Home
 Repository:
 
 ```text
-https://github.com/firemakergk/aquar-home
+https://github.com/ld0574/aquar-home
 ```
 
 现有技术栈重点：
@@ -1421,7 +1421,7 @@ https://github.com/123nhh/Komari-Home-Plus
 
 into:
 
-https://github.com/firemakergk/aquar-home
+https://github.com/ld0574/aquar-home
 
 The target is Aquar's existing "可用性" tab.
 

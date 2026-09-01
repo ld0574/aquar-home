@@ -40,19 +40,22 @@ class ConfigController {
     ctx.body = {code:0, data: {img_path: '/bg_img/'+ctx.request.file.imgName}}
   }
   async updateConfig(ctx, next) {
-    var data = ctx.request.body
+    var data = ctx.request.body || {}
     // data = JSON.parse(data)
-    data.appearance.cacheSerial = sha256(Math.random().toString()).toString().substring(0,16)
+    if (data.appearance && typeof data.appearance === 'object') {
+      data.appearance.cacheSerial = sha256(Math.random().toString()).toString().substring(0,16)
+    }
     appDao.updateConfig(data)
-    let resStr = await appDao.getConfig()
+    let resStr = await appDao.getPublicConfig()
     ctx.body = resStr
   }
   async config(ctx, next) {
-    var res = await appDao.getConfig()
-    if(!res.appearance.cacheSerial || res.appearance.cacheSerial === '0'){
-      res.appearance.cacheSerial = sha256(Math.random().toString()).toString().substring(0,16)
-      appDao.updateConfig(res)
+    var storedConfig = await appDao.getConfig()
+    if(storedConfig.appearance && (!storedConfig.appearance.cacheSerial || storedConfig.appearance.cacheSerial === '0')){
+      storedConfig.appearance.cacheSerial = sha256(Math.random().toString()).toString().substring(0,16)
+      appDao.updateConfig(storedConfig)
     }
+    var res = await appDao.getPublicConfig()
     let themes = themeDao.listNames()
     res.appearance.themes = themes 
     let resDetail = null

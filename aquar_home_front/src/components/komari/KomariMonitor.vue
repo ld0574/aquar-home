@@ -267,6 +267,7 @@ export default {
   created() {
     this.client = new KomariClient(this.endpoint)
     this.loadSnapshot()
+    this.$bus.on('refreshKomari', this.retry)
   },
   mounted() {
     this.alive = true
@@ -285,6 +286,7 @@ export default {
     }, 60000)
   },
   beforeDestroy() {
+    this.$bus.off('refreshKomari', this.retry)
     this.alive = false
     this.requestGeneration += 1
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler)

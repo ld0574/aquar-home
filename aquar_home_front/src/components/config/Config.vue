@@ -33,6 +33,7 @@ import ConfigAppearance from './ConfigAppearance.vue'
 import ConfigTabs from './ConfigTabs.vue'
 import ConfigAccount from './ConfigAccount.vue'
 import ConfigData from './ConfigData.vue'
+import ConfigKomari from './ConfigKomari.vue'
 import ConfigAbout from './ConfigAbout.vue'
 
 export default {
@@ -43,6 +44,7 @@ export default {
     ConfigTabs,
     ConfigAccount,
     ConfigData,
+    ConfigKomari,
     ConfigAbout
   },
   data: function() {
@@ -53,6 +55,7 @@ export default {
         {'name':'分页设置',component:'ConfigTabs'},
         {'name':'帐户设置',component:'ConfigAccount'},
         {'name':'数据设置',component:'ConfigData'},
+        {'name':'Komari设置',component:'ConfigKomari'},
         {'name':'关于',component:'ConfigAbout'}
       ],
       curMenu: 0

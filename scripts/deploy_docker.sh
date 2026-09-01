@@ -1,4 +1,4 @@
-# /bin/bash
+#!/usr/bin/env bash
 # pm2 stop all
 source /root/.bashrc
 source /usr/local/bin/virtualenvwrapper.sh
