@@ -44,7 +44,7 @@ export default {
   mounted: function() {
     console.log(this.$vuetify.theme)
     console.log(JSON.stringify(this.$vuetify.theme.themes))
-    
+
     this.$axios
       .get('/api/config')
       .then(response => {
@@ -55,7 +55,6 @@ export default {
         this.configData = response.data.config
         let validData = ThemeService.validTheme(response.data)
         this.renderBg(validData)
-        this.$forceUpdate()
         ThemeService.updateCache(validData)
       })
   },
@@ -72,7 +71,6 @@ export default {
         this.renderBg(defaultTheme)
         ThemeService.updateCache(defaultTheme)
       }
-      this.$forceUpdate() 
     },
     renderBg(data) {
       let {config, theme} = data
@@ -95,16 +93,13 @@ export default {
       if(theme){
         ThemeService.setupVuetifyTheme(this, theme)
         this.curTheme = Object.assign(this.curTheme,theme.ui)
-      }else if(config.appearance.theme === 'light' || config.appearance.theme === 'dark'){
-        
       }
-      
+
       // else if(config.appearance.theme && this.themes[config.appearance.theme]){
       //   this.curTheme = Object.assign(this.curTheme,this.themes[config.appearance.theme])
       // }else{
       //   this.curTheme = Object.assign(this.curTheme,defaultLight)
       // }
-      this.$forceUpdate()
     }
   }
 }

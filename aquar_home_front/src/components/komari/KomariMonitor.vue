@@ -66,28 +66,28 @@
           <template v-if="viewMode === 'large'">
             <NodeCard
               v-for="node in orderedNodes"
-              :key="nodeKey(node)"
+              :key="node._cacheKey"
               :node="node"
-              :live="statusFor(node)"
-              :trend="trendFor(node)"
-              :ping="pingFor(node)"
+              :live="node._cachedStatus"
+              :trend="node._cachedTrend"
+              :ping="node._cachedPing"
             />
           </template>
           <template v-else-if="viewMode === 'compact'">
             <CompactNodeCard
               v-for="node in orderedNodes"
-              :key="nodeKey(node)"
+              :key="node._cacheKey"
               :node="node"
-              :live="statusFor(node)"
-              :ping="pingFor(node)"
+              :live="node._cachedStatus"
+              :ping="node._cachedPing"
             />
           </template>
           <template v-else>
             <MiniNodeCard
               v-for="node in orderedNodes"
-              :key="nodeKey(node)"
+              :key="node._cacheKey"
               :node="node"
-              :live="statusFor(node)"
+              :live="node._cachedStatus"
             />
           </template>
         </div>
@@ -163,6 +163,8 @@ export default {
       pageHideHandler: null,
       pageShowHandler: null,
       alive: false,
+      saveSnapshotTimer: null,
+      saveSnapshotPending: false,
       sortOptions: [
         { key: 'default', label: '默认', direction: 'asc' },
         { key: 'name', label: '名称', direction: 'asc' },
@@ -233,9 +235,22 @@ export default {
     },
     orderedNodes() {
       const direction = this.sortDirection === 'asc' ? 1 : -1
-      return this.nodes.slice().sort((left, right) => {
-        const leftOnline = this.isOnline(left)
-        const rightOnline = this.isOnline(right)
+
+      // 预先缓存每个节点的数据，避免在渲染时重复计算
+      const nodesWithCache = this.nodes.map(node => {
+        const key = nodeId(node, node && node.name ? node.name : 'unknown-node')
+        return {
+          ...node,
+          _cacheKey: key,
+          _cachedStatus: this.statusMap[key] || {},
+          _cachedTrend: this.trends[key] || { up: [], down: [] },
+          _cachedPing: this.pingMap[key] || { lastValue: null, loss: null, buckets: [] }
+        }
+      })
+
+      return nodesWithCache.slice().sort((left, right) => {
+        const leftOnline = Boolean(left._cachedStatus && left._cachedStatus.online === true)
+        const rightOnline = Boolean(right._cachedStatus && right._cachedStatus.online === true)
         if (leftOnline !== rightOnline) return leftOnline ? -1 : 1
 
         let leftValue
@@ -293,6 +308,7 @@ export default {
     if (this.pageHideHandler) window.removeEventListener('pagehide', this.pageHideHandler)
     if (this.pageShowHandler) window.removeEventListener('pageshow', this.pageShowHandler)
     if (this.pingTimer) clearInterval(this.pingTimer)
+    if (this.saveSnapshotTimer) clearTimeout(this.saveSnapshotTimer)
     this.clearNodeRetry()
     if (this.client) this.client.disconnect()
     this.saveSnapshot()
@@ -373,6 +389,17 @@ export default {
         // Private browsing or a full storage quota is safe to ignore.
       }
     },
+    saveSnapshotThrottled() {
+      // 节流保存：10秒内最多保存一次
+      if (this.saveSnapshotPending) return
+      this.saveSnapshotPending = true
+      if (this.saveSnapshotTimer) clearTimeout(this.saveSnapshotTimer)
+      this.saveSnapshotTimer = setTimeout(() => {
+        this.saveSnapshot()
+        this.saveSnapshotPending = false
+        this.saveSnapshotTimer = null
+      }, 10000)
+    },
     clearNodeRetry() {
       if (this.nodeRetryTimer) {
         clearTimeout(this.nodeRetryTimer)
@@ -408,7 +435,7 @@ export default {
         this.nodesReady = true
         this.nodeRetryAttempts = 0
         this.clearNodeRetry()
-        this.saveSnapshot()
+        this.saveSnapshotThrottled()
         return { loaded: true, generation, client }
       } catch (error) {
         if (!this.isCurrentRequest(generation, client)) return false
@@ -432,7 +459,19 @@ export default {
       const next = normalizeStatusMap(result)
       const complete = options && options.complete === true
       if (!Object.keys(next).length && !complete) return
-      this.statusMap = complete ? next : Object.assign({}, this.statusMap, next)
+
+      // 批量更新状态，减少响应式触发
+      if (complete) {
+        this.statusMap = next
+      } else {
+        // 只更新变化的节点
+        Object.keys(next).forEach(uuid => {
+          this.$set(this.statusMap, uuid, next[uuid])
+        })
+      }
+
+      // 批量更新趋势数据
+      const trendsToUpdate = {}
       Object.keys(next).forEach(uuid => {
         const status = next[uuid]
         if (!status || status.online !== true) return
@@ -441,9 +480,15 @@ export default {
         trend.down.push(number(status.net_in))
         if (trend.up.length > 60) trend.up.shift()
         if (trend.down.length > 60) trend.down.shift()
-        this.$set(this.trends, uuid, trend)
+        trendsToUpdate[uuid] = trend
       })
-      this.saveSnapshot()
+
+      // 一次性更新所有趋势数据
+      Object.keys(trendsToUpdate).forEach(uuid => {
+        this.$set(this.trends, uuid, trendsToUpdate[uuid])
+      })
+
+      this.saveSnapshotThrottled()
     },
     handleConnectionState(state) {
       if (!this.alive) return
