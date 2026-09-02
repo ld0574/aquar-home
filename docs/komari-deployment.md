@@ -103,10 +103,14 @@ nc -zv komari.example.com 25774
 登录 AquarHome，打开 **设置 → Komari设置**：
 
 1. **Komari 服务地址**填写 AquarHome 后端能够访问的地址，例如 `http://192.168.1.20:25774` 或 `https://komari.example.com`。
-2. **Komari Secret**填写 Komari API 使用的 Token；可以填原始 Token，也可以填完整的 `Bearer <Token>`。
+2. **Komari API Key（Secret）**填写 Komari 管理后台生成的 API Key；可以填原始 Key，也可以填完整的 `Bearer <Key>`。
 3. 保存后打开“可用性”Tab，检查节点是否出现。
 
 AquarHome 会通过后端代理访问 Komari，浏览器不会直接拿到 Komari Secret。Secret 保存后不会回显；留空保存表示保持原值，勾选清除才会删除。
+
+> **不要填错**：自动发现密钥只用于 Agent 首次自动注册，Agent Token 只属于某一个监控节点；这两个都不能替代 AquarHome 所需的 Komari API Key。
+
+API Key 的获取位置通常是 Komari 管理后台的 **系统设置/通用设置 → API Key（API 密钥）**。不同 Komari 版本的菜单名称可能略有不同；如果完全找不到 API Key，先确认 Komari 版本支持 RPC2 和 API Key，再升级到当前版本。
 
 服务地址支持根地址和带反向代理前缀的地址：
 
@@ -125,7 +129,7 @@ https://example.com/komari
 
 ```dotenv
 KOMARI_SERVER=https://komari.example.com
-KOMARI_AUTHORIZATION=Bearer <TOKEN>
+KOMARI_AUTHORIZATION=Bearer <API_KEY>
 KOMARI_PROXY_TIMEOUT=15000
 ```
 
@@ -138,7 +142,7 @@ KOMARI_PROXY_TIMEOUT=15000
 - 升级 Komari：先备份数据，再执行 `docker compose pull && docker compose up -d`；不要删除数据目录。
 - AquarHome 页面提示未配置：检查前端是否保存了服务地址，或 `.env` 是否包含 `KOMARI_SERVER`。
 - 页面提示连接失败：从 AquarHome 容器内部检查 DNS、路由和端口，不要只在宿主机上测试。
-- 页面提示鉴权失败：重新从 Komari 获取 Token，确认 Secret 是 API Token，而不是登录密码。
+- 页面提示鉴权失败：重新从 Komari 获取 API Key，确认填写的不是自动发现密钥、Agent Token 或登录密码。
 - 查看 AquarHome 日志：`docker compose logs -f --tail=200 aquarhome`。
 
 ## 7. 官方资料

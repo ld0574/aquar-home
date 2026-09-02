@@ -2,7 +2,7 @@
   <div class="config_content">
     <v-container class="lighten-5">
       <v-alert dense outlined type="info">
-        配置保存在服务器的数据目录中。已保存的 Secret 不会回显；Secret 留空表示保持原值。
+        这里填写 Komari API Key，不是自动发现密钥，也不是某台 Agent 的节点 Token。已保存的 Key 不会回显；留空表示保持原值。
       </v-alert>
       <v-row align="center" dense class="py-2">
         <v-col cols="12">
@@ -21,8 +21,8 @@
             dense
             hide-details
             type="password"
-            label="Komari Secret"
-            :placeholder="secretConfigured ? '已配置，留空保持不变' : '输入 Token，或填写 Bearer Token'"
+            label="Komari API Key（Secret）"
+            :placeholder="secretConfigured ? '已配置，留空保持不变' : '输入 API Key，或填写 Bearer API Key'"
             v-model="secret"
           ></v-text-field>
         </v-col>
