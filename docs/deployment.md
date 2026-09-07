@@ -134,7 +134,9 @@ docker compose up --pull never -d
 docker compose ps
 ```
 
-构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。mediasoup 和 sharp 会优先下载预编译文件，下载不到时 builder 会回退到本地编译。首次构建可能需要较长时间和稳定的外网访问。
+构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。mediasoup 会优先下载预编译 worker，下载不到时 builder 会回退到本地编译。sharp 0.34.5 的原生模块和 libvips 通过 npm 的可选依赖安装，Dockerfile 使用 `--include=optional` 保留它们，并在构建时验证模块能否加载。首次构建可能需要较长时间和稳定的外网访问。
+
+如果旧版本在 `npm ci` 时提示下载 `libvips-8.10.6-linux-x64.tar.br` 超时，说明正在安装 sharp 0.28.x；它会从 GitHub Releases 下载 libvips，仅修改 `NPM_REGISTRY` 不会改变这个下载地址。请同步本仓库更新后的 `Dockerfile`、`aquar_home_server/package.json` 和 `aquar_home_server/package-lock.json` 后重新构建。后端锁文件需要随源码一起提交和部署，不能只更新 `package.json`，也不要用 `--ignore-scripts` 跳过生产安装脚本；mediasoup 仍需要安装脚本准备 worker。
 
 镜像名只是本机 tag，不代表镜像已经推送到仓库。也可以直接使用与 Docker Hub 相同的 tag 构建，但不执行 `docker push`：
 

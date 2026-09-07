@@ -45,10 +45,9 @@ WORKDIR /app/aquar_home/aquar_home_server
 
 RUN npm config set registry "${NPM_REGISTRY}"
 
-# mediasoup and sharp normally use prebuilt artifacts. Keep a build-tool
-# fallback in this builder for servers where the prebuilt download is blocked
-# or unavailable for the target architecture/kernel. These packages do not
-# reach the final runtime image.
+# mediasoup normally downloads a prebuilt worker. Keep a build-tool fallback
+# for servers where that download is blocked or unavailable for the target
+# architecture/kernel. These packages do not reach the final runtime image.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        ca-certificates \
@@ -69,8 +68,10 @@ COPY --from=frontend-builder \
     /app/aquar_home/aquar_home_front/dist/. \
     ./public/
 
-# Install the locked production dependency tree only.
-RUN npm ci --omit=dev \
+# sharp 0.34 distributes its native addon and libvips as optional npm packages,
+# so it no longer needs the legacy install-time download from GitHub Releases.
+RUN npm ci --omit=dev --include=optional \
+    && node -e "require('sharp')" \
     && npm cache clean --force
 
 
