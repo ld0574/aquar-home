@@ -7,7 +7,9 @@ class SocketServer {
   io = null
   constructor(httpServer){
     console.log("socket.io初始化")
-    this.io = new SocketIOServer(httpServer)
+    // Komari also owns a WebSocket route on this server. Its upstream
+    // handshake can take longer than Engine.IO's one-second cleanup timer.
+    this.io = new SocketIOServer(httpServer, { destroyUpgrade: false })
     let chatRoomIo = this.io.of('/chatroom')
     chatRoomSocketController.io = chatRoomIo
     chatRoomSocketController.init()
@@ -40,4 +42,4 @@ class SocketServer {
   }
 }
 
-export default SocketServer 
+export default SocketServer

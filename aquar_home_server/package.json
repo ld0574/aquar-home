@@ -9,6 +9,7 @@
     "dev": "set NODE_ENV=dev&&babel-node ./index.js",
     "prd": "pm2 start ./index.js",
     "dcprd": "pm2-runtime start ./index.js",
+    "test:komari": "node --test test/komari-proxy.test.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

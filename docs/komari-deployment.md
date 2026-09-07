@@ -143,6 +143,8 @@ KOMARI_PROXY_TIMEOUT=15000
 - AquarHome 页面提示未配置：检查前端是否保存了服务地址，或 `.env` 是否包含 `KOMARI_SERVER`。
 - 页面提示连接失败：从 AquarHome 容器内部检查 DNS、路由和端口，不要只在宿主机上测试。
 - 页面提示鉴权失败：重新从 Komari 获取 API Key，确认填写的不是自动发现密钥、Agent Token 或登录密码。
+- 普通 RPC 成功但 WebSocket 约 1 秒后断开：请同步更新 `aquar_home_server/socket.js` 和 `aquar_home_server/service/komari-proxy.js` 并重新构建。Socket.IO 与 Komari 共用 HTTPS 服务，旧配置会提前清理尚未完成上游握手的 Komari 连接；新版按路径分配连接，并使用 Komari 自身的 Origin 转发握手，避免上游返回 403。
+- 浏览器提示 WSS 证书错误：HTTPS 页面与 WSS 共用 AquarHome 的证书，无需单独为 WSS 配置一份。默认内置证书是自签名证书；使用域名部署时，可在 AquarHome 数据目录的 `cert/` 下放入匹配该域名、受客户端信任的 `aquarhome.crt` 和 `aquarhome.key`，然后重启服务。
 - 查看 AquarHome 日志：`docker compose logs -f --tail=200 aquarhome`。
 
 ## 7. 官方资料

@@ -5,7 +5,7 @@
         这里填写 Komari API Key，不是自动发现密钥，也不是某台 Agent 的节点 Token。已保存的 Key 不会回显；留空表示保持原值。
       </v-alert>
       <v-row align="center" dense class="py-2">
-        <v-col cols="12">
+        <v-col cols="12" sm="8">
           <v-text-field
             dense
             hide-details
@@ -13,6 +13,22 @@
             placeholder="https://komari.example.com"
             v-model="configData.komari.server"
           ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <v-btn
+            block
+            depressed
+            small
+            outlined
+            color="primary"
+            :href="adminUrl || undefined"
+            :disabled="!adminUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <v-icon small left>mdi-open-in-new</v-icon>
+            进入后台
+          </v-btn>
         </v-col>
       </v-row>
       <v-row align="center" dense class="py-2">
@@ -68,6 +84,22 @@ export default {
       saving: false,
       message: '',
       error: ''
+    }
+  },
+  computed: {
+    adminUrl() {
+      const server = String(this.configData.komari.server || '').trim()
+      if (!server) return ''
+      try {
+        const url = new URL(server)
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return ''
+        url.pathname = `${url.pathname.replace(/\/+$/, '')}/admin`
+        url.search = ''
+        url.hash = ''
+        return url.toString()
+      } catch (error) {
+        return ''
+      }
     }
   },
   created() {

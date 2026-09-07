@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { STATUS_CODES } from 'http'
 import net from 'net'
 import tls from 'tls'
 import { URL } from 'url'
@@ -124,9 +125,9 @@ function canUpgrade(req, requestUrl) {
 
 function sendSocketError(socket, statusCode, message) {
   if (!socket || socket.destroyed) return
-  const statusText = statusCode === 401 ? 'Unauthorized' : statusCode === 503 ? 'Service Unavailable' : 'Bad Gateway'
+  const statusText = STATUS_CODES[statusCode] || 'Error'
   const body = `${message}\n`
-  socket.write(
+  socket.end(
     `HTTP/1.1 ${statusCode} ${statusText}\r\n` +
     'Connection: close\r\n' +
     'Content-Type: text/plain; charset=utf-8\r\n' +
@@ -134,7 +135,7 @@ function sendSocketError(socket, statusCode, message) {
     '\r\n' +
     body
   )
-  socket.destroy()
+  socket.destroySoon()
 }
 
 function headerValue(value) {
@@ -164,10 +165,13 @@ function proxyUpgrade(req, clientSocket, head, target, requestUrl) {
   const forwarded = req.headers || {}
   Object.keys(forwarded).forEach(name => {
     const lower = name.toLowerCase()
-    if (lower === 'host' || lower === 'connection' || lower === 'upgrade' || lower === 'authorization') return
+    if (['host', 'connection', 'upgrade', 'authorization', 'origin', 'cookie'].includes(lower)) return
     lines.push(`${name}: ${headerValue(forwarded[name])}`)
   })
   lines.push(`Host: ${targetUrl.host}`)
+  // The browser authenticates to Aquar first. Komari receives its own API key
+  // and origin, so its origin checks do not reject the Aquar page's address.
+  lines.push(`Origin: ${targetUrl.origin}`)
   lines.push('Connection: Upgrade')
   lines.push('Upgrade: websocket')
   const authorization = configuredAuthorization()
@@ -175,7 +179,7 @@ function proxyUpgrade(req, clientSocket, head, target, requestUrl) {
     lines.push(`Authorization: ${authorization}`)
   }
 
-  let connected = false
+  let responseStarted = false
   let errorSent = false
   const upstream = openUpstream(targetUrl)
   const connectEvent = targetUrl.protocol === 'https:' ? 'secureConnect' : 'connect'
@@ -184,7 +188,7 @@ function proxyUpgrade(req, clientSocket, head, target, requestUrl) {
   const fail = (message) => {
     if (errorSent) return
     errorSent = true
-    if (connected) {
+    if (responseStarted) {
       clientSocket.destroy()
     }
     else sendSocketError(clientSocket, 502, message)
@@ -196,18 +200,22 @@ function proxyUpgrade(req, clientSocket, head, target, requestUrl) {
   })
   upstream.once(connectEvent, () => {
     if (upstream.destroyed || clientSocket.destroyed) return
-    connected = true
-    upstream.setTimeout(0)
     upstream.write(`${lines.join('\r\n')}\r\n\r\n`)
     if (head && head.length) upstream.write(head)
     clientSocket.pipe(upstream)
     upstream.pipe(clientSocket)
   })
+  // A TCP/TLS connection alone does not mean the HTTP upgrade has answered.
+  // Keep the timeout until Komari starts its handshake response.
+  upstream.once('data', () => {
+    responseStarted = true
+    upstream.setTimeout(0)
+  })
   upstream.on('error', error => {
     fail('Komari WebSocket 连接失败')
   })
   upstream.on('close', () => {
-    if (!connected) fail('Komari WebSocket 连接失败')
+    if (!responseStarted) fail('Komari WebSocket 连接失败')
   })
   clientSocket.on('error', () => upstream.destroy())
   clientSocket.on('close', () => upstream.destroy())
@@ -219,10 +227,18 @@ export function attachKomariWebSocketProxy(server) {
     try {
       requestUrl = new URL(req.url || '/', 'http://aquar.local')
     } catch (error) {
+      sendSocketError(socket, 400, '无效的 WebSocket 请求地址')
       return
     }
 
-    if (requestUrl.pathname !== '/komari-api/rpc2') return
+    if (requestUrl.pathname !== '/komari-api/rpc2') {
+      // Engine.IO handles its own route; with destroyUpgrade disabled, we
+      // must explicitly close upgrades that belong to neither service.
+      if (!requestUrl.pathname.startsWith('/socket.io/')) {
+        sendSocketError(socket, 404, 'WebSocket 路径不存在')
+      }
+      return
+    }
     if (!canUpgrade(req, requestUrl)) {
       sendSocketError(socket, 401, 'Aquar 登录状态已失效')
       return
