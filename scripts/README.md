@@ -44,6 +44,8 @@ MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://github.com/versatica/mediaso
   bash scripts/update_docker.sh
 ```
 
+也可以把匹配当前 Linux 架构和内核版本的 `mediasoup-worker-*.tgz` 放入 `scripts/`；构建会优先读取该文件，并把它保存到 Docker BuildKit 缓存。
+
 默认不会先执行 `docker compose down`，而是在新镜像构建完成后直接 `--force-recreate`，可以减少停机时间。脚本检测到工作区有未提交改动时会停止，避免更新时覆盖服务器上的本地修改。
 
 如果服务器需要代理访问外网，脚本会把当前 shell 中的 `HTTP_PROXY`、`HTTPS_PROXY` 和 `NO_PROXY`（大小写形式均支持）转发给 Docker 构建阶段。

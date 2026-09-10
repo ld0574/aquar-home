@@ -14,7 +14,7 @@
 
 ARG NODE_IMAGE=node:22-bookworm-slim
 ARG NPM_REGISTRY=https://registry.npmmirror.com
-ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://ghfast.top/https://github.com/versatica/mediasoup/releases/download
+ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://gh-proxy.com/https://github.com/versatica/mediasoup/releases/download,https://ghfast.top/https://github.com/versatica/mediasoup/releases/download,https://github.com/versatica/mediasoup/releases/download
 
 # ============================================================
 # 1) Legacy frontend builder
@@ -63,14 +63,17 @@ RUN --mount=type=cache,target=/root/.npm \
     export MEDIASOUP_WORKER_BIN="${PWD}/node_modules/mediasoup/worker/out/Release/mediasoup-worker" \
     && npm ci --omit=dev --include=optional
 
-COPY ./scripts/install_mediasoup_worker.mjs ./install_mediasoup_worker.mjs
+COPY ./scripts/ ./build-scripts/
 
 # Keep this ARG after npm ci so changing the mirror only reruns this small
 # download layer instead of reinstalling every backend dependency.
 ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL
-RUN MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL}" \
-    node ./install_mediasoup_worker.mjs \
-    && rm -f ./install_mediasoup_worker.mjs
+RUN --mount=type=cache,id=aquar-mediasoup-worker,target=/root/.cache/aquar-mediasoup-worker,sharing=locked \
+    MEDIASOUP_WORKER_LOCAL_ARCHIVE_DIR="${PWD}/build-scripts" \
+    MEDIASOUP_WORKER_CACHE_DIR=/root/.cache/aquar-mediasoup-worker \
+    MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL}" \
+    node ./build-scripts/install_mediasoup_worker.mjs \
+    && rm -rf ./build-scripts
 
 COPY ./aquar_home_server/ ./
 

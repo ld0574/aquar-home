@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 IMAGE_NAME="${AQUAR_IMAGE:-ld0574/aquarhome:latest}"
 NPM_REGISTRY="${NPM_REGISTRY:-https://registry.npmmirror.com}"
-MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL:-https://ghfast.top/https://github.com/versatica/mediasoup/releases/download}"
+MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL:-https://gh-proxy.com/https://github.com/versatica/mediasoup/releases/download,https://ghfast.top/https://github.com/versatica/mediasoup/releases/download,https://github.com/versatica/mediasoup/releases/download}"
 NO_CACHE=0
 STOP_FIRST=0
 
@@ -26,7 +26,7 @@ usage() {
 
 环境变量：
   NPM_REGISTRY  npm 源，默认 https://registry.npmmirror.com
-  MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL  mediasoup worker 加速地址，默认使用 ghfast
+  MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL  mediasoup worker 地址，可用逗号分隔多个源
   HTTP_PROXY/HTTPS_PROXY/NO_PROXY  可选，转发给 Docker 构建阶段的网络请求
   AQUAR_IMAGE   镜像名，默认 ld0574/aquarhome:latest
 EOF

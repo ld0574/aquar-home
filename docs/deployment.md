@@ -120,7 +120,7 @@ docker compose ps
 ```bash
 docker build \
   --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
-  --build-arg MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://ghfast.top/https://github.com/versatica/mediasoup/releases/download \
+  --build-arg MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://gh-proxy.com/https://github.com/versatica/mediasoup/releases/download \
   -t aquarhome:local .
 ```
 
@@ -137,7 +137,7 @@ docker compose up --pull never -d
 docker compose ps
 ```
 
-构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。Dockerfile 会缓存 npm 下载，并把依赖安装与源码构建分层；只修改代码时不会重复安装依赖。mediasoup 的 worker 默认通过 `ghfast.top` 加速地址下载预编译包，下载失败会在有限时间内直接报错，不再回退到耗时很长且容易被 Meson/libuv 网络阻塞的本地编译。若服务器能访问官方 GitHub，或你有自己的镜像，可覆盖该参数：
+构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。Dockerfile 会缓存 npm 下载，并把依赖安装与源码构建分层；只修改代码时不会重复安装依赖。mediasoup 的 worker 默认按 `gh-proxy.com`、`ghfast.top`、官方 GitHub 的顺序尝试下载预编译包；如果仓库 `scripts/` 下存在对应文件名的 worker 压缩包（例如 `mediasoup-worker-3.26.0-linux-x64-kernel7.tgz`），会优先使用它。下载成功后还会写入 Docker BuildKit 本地缓存，后续构建直接复用，不再重复联网。下载失败会在有限时间内切换下一个地址，不再回退到耗时很长且容易被 Meson/libuv 网络阻塞的本地编译。
 
 ```bash
 # 使用官方地址
@@ -145,6 +145,8 @@ docker build \
   --build-arg MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://github.com/versatica/mediasoup/releases/download \
   -t aquarhome:local .
 ```
+
+也可以把 worker 文件放到项目的 `scripts/` 目录后再构建。文件名必须与目标平台、架构和内核版本匹配；Docker 构建会自动读取并复制到本地 BuildKit 缓存。
 
 sharp 0.34.5 的原生模块和 libvips 通过 npm 的可选依赖安装，Dockerfile 使用 `--include=optional` 保留它们，并在构建时验证模块能否加载。首次构建仍需要稳定的外网访问，但正常情况下不会再进入 mediasoup 的本地 C++ 编译流程。
 
@@ -184,7 +186,7 @@ docker compose up --pull never -d
 bash scripts/update_docker.sh
 ```
 
-脚本会执行 `git pull --ff-only`、校验 Compose 配置、使用 npmmirror 和 mediasoup worker 加速地址构建镜像，并以 `--pull never --force-recreate` 启动容器。默认不执行 `docker compose down`，需要完全停止旧容器时再追加 `--down`；需要清空构建缓存时追加 `--no-cache`。如果你的网络不适合默认加速地址，可在执行时覆盖：
+脚本会执行 `git pull --ff-only`、校验 Compose 配置、使用 npmmirror 和多个 mediasoup worker 加速地址构建镜像，并以 `--pull never --force-recreate` 启动容器。worker 下载成功后会保存在 Docker BuildKit 缓存中，后续构建不会重复下载。默认不执行 `docker compose down`，需要完全停止旧容器时再追加 `--down`；需要清空构建缓存时追加 `--no-cache`。如果你的网络不适合默认加速地址，可在执行时覆盖：
 
 ```bash
 MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://github.com/versatica/mediasoup/releases/download \
