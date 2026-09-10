@@ -53,14 +53,14 @@ export default {
   align-items: center;
   gap: 5px;
   color: var(--k-text-2);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   white-space: nowrap;
 }
 .k-metric-label .v-icon { color: var(--k-text-2); }
 .k-metric-value {
   color: var(--k-text);
-  font-size: 13px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
@@ -71,17 +71,17 @@ export default {
   overflow: hidden;
   margin-top: 2px;
   color: var(--k-text-3);
-  font-size: 10px;
+  font-size: 9px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.k-metric-track { display: flex; gap: 2px; height: 6px; margin-top: 4px; }
+.k-metric-track { display: flex; gap: 2px; height: 5px; margin-top: 6px; }
 .k-metric-seg {
   flex: 1;
   min-width: 1px;
-  border-radius: 2px;
+  border-radius: 999px;
   background: var(--k-progress-bg);
   transition: background .3s ease;
 }
-.k-metric-seg.active { background: var(--k-seg-paint); }
+.k-metric-seg.active { background: var(--k-seg-paint); box-shadow: 0 0 7px color-mix(in srgb, var(--k-seg-paint) 38%, transparent); }
 </style>

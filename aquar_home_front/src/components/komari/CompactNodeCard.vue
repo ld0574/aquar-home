@@ -91,24 +91,25 @@ export default {
 </script>
 
 <style scoped>
-.k-card { display: flex; flex-direction: column; min-width: 0; gap: 10px; padding: 12px 14px; border: 1px solid var(--k-border); border-radius: 14px; background: var(--k-surface); backdrop-filter: blur(12px); color: var(--k-text); transition: transform .2s ease, background .2s ease; }
-.k-card:hover { background: var(--k-surface-hover); transform: translateY(-2px); }
+.k-card { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 11px; padding: 15px 16px 13px; border: 1px solid var(--k-border-subtle); border-radius: 16px; background: linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .018)), var(--k-surface); backdrop-filter: blur(18px); color: var(--k-text); box-shadow: 0 12px 28px rgba(0, 0, 0, .08); transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+.k-card::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 2px; border-radius: 0 0 4px 4px; background: linear-gradient(90deg, var(--k-accent), transparent 72%); opacity: .7; }
+.k-card:hover { background: linear-gradient(145deg, rgba(255, 255, 255, .095), rgba(255, 255, 255, .03)), var(--k-surface-hover); box-shadow: 0 17px 34px rgba(0, 0, 0, .14); transform: translateY(-3px); }
 .k-card.offline { opacity: .72; }
 .k-compact-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .k-compact-title { display: flex; align-items: center; gap: 7px; min-width: 0; }
-.k-compact-name { min-width: 0; overflow: hidden; font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.k-compact-name { min-width: 0; overflow: hidden; font-size: 14px; font-weight: 800; letter-spacing: -.012em; text-overflow: ellipsis; white-space: nowrap; }
 .k-card-status { display: inline-flex; align-items: center; justify-content: center; width: 9px; height: 9px; flex-shrink: 0; }
 .k-card-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--k-offline); }
 .k-card-status.on i { background: var(--k-online); box-shadow: 0 0 5px var(--k-online); }
-.k-compact-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.k-compact-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; padding: 10px 11px; border: 1px solid var(--k-border-subtle); border-radius: 12px; background: rgba(0, 0, 0, .07); }
 .k-compact-metrics > div { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; }
 .k-compact-metrics span { display: inline-flex; align-items: center; gap: 4px; color: var(--k-text-2); font-weight: 600; }
 .k-compact-metrics strong { font-variant-numeric: tabular-nums; }
 .k-compact-metrics .cpu { color: var(--k-cpu); }.k-compact-metrics .memory { color: var(--k-memory); }.k-compact-metrics .disk { color: var(--k-disk); }.k-compact-metrics .load { color: var(--k-load); }
-.k-compact-health { display: flex; align-items: center; gap: 10px; padding-top: 8px; border-top: 1px solid var(--k-border-subtle); color: var(--k-text-2); font-size: 11px; font-weight: 600; }
+.k-compact-health { display: flex; align-items: center; gap: 10px; padding-top: 9px; border-top: 1px solid var(--k-border-subtle); color: var(--k-text-2); font-size: 11px; font-weight: 700; }
 .k-compact-health > span { display: inline-flex; align-items: center; white-space: nowrap; }
 .k-compact-net { margin-left: auto; color: var(--k-text-3); font-weight: 500; }
 .k-compact-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; color: var(--k-text-3); font-size: 10px; }
 .k-compact-foot > span { white-space: nowrap; }.k-compact-foot .ok { color: var(--k-expire-ok); }.k-compact-foot .urgent { color: var(--k-expire-urgent); }.k-compact-foot .expired { color: var(--k-expire-expired); }
-.k-foot-price { padding: 1px 6px; border-radius: 8px; background: var(--k-price-bg); color: var(--k-price-fg); }.k-foot-price.free { background: var(--k-tag-bg); color: var(--k-tag-fg); }.k-foot-tag { padding: 1px 7px; border-radius: 8px; background: var(--k-tag-bg); color: var(--k-tag-fg); }
+.k-foot-price { padding: 3px 7px; border-radius: 7px; background: var(--k-price-bg); color: var(--k-price-fg); }.k-foot-price.free { background: var(--k-tag-bg); color: var(--k-tag-fg); }.k-foot-tag { padding: 3px 8px; border-radius: 7px; background: var(--k-tag-bg); color: var(--k-tag-fg); }
 </style>

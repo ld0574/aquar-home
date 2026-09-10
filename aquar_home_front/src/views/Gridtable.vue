@@ -1,10 +1,11 @@
 <template>
-  <div class="grid_container">
-    <div class="dashboard_header tbgcolor_head">
-      <div class="logo">
-        <img style="height: 20px;" :src="logo_aquar">
+  <div class="grid_container" :class="{ 'is-komari': isKomariTab }">
+    <div class="dashboard_header">
+      <div class="logo dashboard_brand">
+        <span class="brand_mark"><img :src="logo_aquar" alt="Aquar"></span>
+        <span class="brand_copy"><strong>AQUAR</strong><small>HOME CONSOLE</small></span>
       </div>
-      <div style="flex-grow: 1">
+      <div class="dashboard_tabs">
         <v-tabs :value="curTabIndex">
           <v-tabs-slider ></v-tabs-slider>
           <v-tab v-for="(tab,index) in tabs" :disabled="editing"  :key="'tab_'+index" @click="toTab(index)">
@@ -16,19 +17,19 @@
       <a v-if="!editing && curViewSize==='lg'" style="margin: 0 4px;" class="iconfont icon-gallery-view icon tcolor_reserve" title="设置布局" @click="editing=true" />
       <a v-else-if="editing" style="margin: 0 4px;" class="iconfont icon-check icon tcolor_reserve" title="确定布局" @click="confirmLayout()" />
       <a style="margin: 0 4px;" class="iconfont icon-cog-fill icon tcolor_reserve" title="设置" @click="toggleConfigPanel()" /> -->
-      <div>
-        <v-btn icon small target="_blank" href="https://github.com/firemakergk/aquar-home-helper" title="帮助">
-        <v-icon class="tcolor_sub" style="font-size:20px;" >mdi-help-circle-outline</v-icon>
+      <div class="dashboard_actions">
+        <v-btn class="header_action" icon small target="_blank" href="https://github.com/firemakergk/aquar-home-helper" title="帮助">
+        <v-icon class="tcolor_sub" >mdi-help-circle-outline</v-icon>
         </v-btn>
-        <v-divider class="mx-1" vertical></v-divider>
-        <v-btn v-if="!isKomariTab && !editing && curViewSize==='lg'" icon small  @click="editing=true" title="设置布局">
-          <v-icon class="tcolor_primary" style="font-size:20px;" >mdi-view-dashboard</v-icon>
+        <span class="header_divider"></span>
+        <v-btn v-if="!isKomariTab && !editing && curViewSize==='lg'" class="header_action" icon small  @click="editing=true" title="设置布局">
+          <v-icon class="tcolor_primary" >mdi-view-dashboard</v-icon>
         </v-btn>
-        <v-btn v-else-if="editing" icon small @click="confirmLayout()" title="确定布局">
-          <v-icon class="tcolor_primary" style="font-size:20px;" >mdi-check-bold</v-icon>
+        <v-btn v-else-if="editing" class="header_action" icon small @click="confirmLayout()" title="确定布局">
+          <v-icon class="tcolor_primary" >mdi-check-bold</v-icon>
         </v-btn>
-        <v-btn icon small @click="toggleConfigPanel()" title="设置">
-          <v-icon class="tcolor_primary" style="font-size:20px;" >mdi-cog</v-icon>
+        <v-btn class="header_action header_settings" icon small @click="toggleConfigPanel()" title="设置">
+          <v-icon class="tcolor_primary" >mdi-cog</v-icon>
         </v-btn>
       </div>
     </div>
@@ -648,5 +649,52 @@ export default {
 }
 .absolute {
   position: absolute;
+}
+
+/* Shared shell refresh for the dashboard navigation. */
+.dashboard_header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 70px;
+  padding: 0 clamp(16px, 2.5vw, 38px);
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(12, 17, 27, .72);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+  backdrop-filter: blur(22px) saturate(1.25);
+}
+.dashboard_brand { display: flex; align-items: center; gap: 10px; min-width: 148px; margin-right: clamp(18px, 3vw, 48px); }
+.brand_mark { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .18); border-radius: 10px; box-shadow: 0 5px 16px rgba(0, 0, 0, .2); }
+.brand_mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.brand_copy { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
+.brand_copy strong { color: var(--tcolor_main, #f3f5f7); font-size: 14px; font-weight: 900; letter-spacing: .12em; }
+.brand_copy small { color: var(--tcolor_disable, rgba(255,255,255,.42)); font-size: 7px; font-weight: 700; letter-spacing: .16em; }
+.dashboard_tabs { align-self: stretch; flex: 1; min-width: 0; }
+.dashboard_tabs ::v-deep .v-tabs { height: 70px; }
+.dashboard_tabs ::v-deep .v-tabs-bar { height: 70px; background: transparent; }
+.dashboard_tabs ::v-deep .v-tab { min-width: 90px; height: 70px; padding: 0 17px; color: var(--tcolor_disable, rgba(255,255,255,.48)); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.dashboard_tabs ::v-deep .v-tab:hover { color: var(--tcolor_main, #fff); }
+.dashboard_tabs ::v-deep .v-tab--active { color: var(--tcolor_primary, #5bc9ef) !important; }
+.dashboard_tabs ::v-deep .v-tabs-slider { height: 3px; border-radius: 3px 3px 0 0; background: var(--tcolor_primary, #5bc9ef); }
+.dashboard_actions { display: flex; align-items: center; gap: 5px; margin-left: 12px; }
+.header_action { width: 34px !important; height: 34px !important; margin: 0 !important; border-radius: 10px; }
+.header_action::before { opacity: 0 !important; }
+.header_action:hover { background: rgba(255, 255, 255, .08); }
+.header_action .v-icon { font-size: 19px !important; }
+.header_divider { width: 1px; height: 22px; margin: 0 6px; background: rgba(255,255,255,.12); }
+.grid_container.is-komari { isolation: isolate; min-height: 100vh; }
+.grid_container.is-komari::before { content: ''; position: fixed; z-index: 0; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; background: linear-gradient(180deg, rgba(5, 10, 20, .42), rgba(5, 10, 20, .62)); }
+.grid_container.is-komari > .dashboard_header { position: sticky; z-index: 20; }
+.grid_container.is-komari > .komari-page { position: relative; z-index: 1; }
+@media (max-width: 680px) {
+  .dashboard_header { min-height: 62px; padding: 0 12px; }
+  .dashboard_brand { min-width: auto; margin-right: 8px; }
+  .brand_copy { display: none; }
+  .dashboard_tabs ::v-deep .v-tabs, .dashboard_tabs ::v-deep .v-tabs-bar, .dashboard_tabs ::v-deep .v-tab { height: 62px; }
+  .dashboard_tabs ::v-deep .v-tab { min-width: 68px; padding: 0 10px; font-size: 11px; }
+  .dashboard_actions { margin-left: 4px; }
+  .header_action:not(.header_settings) { display: none; }
+  .header_divider { display: none; }
 }
 </style>

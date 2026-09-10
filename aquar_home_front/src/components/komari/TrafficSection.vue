@@ -36,19 +36,19 @@ export default {
 
 <style scoped>
 .k-traffic { display: flex; flex-direction: column; gap: 6px; }
-.k-traffic-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.k-traffic-row { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 6px 8px; border: 1px solid var(--k-border-subtle); border-radius: 10px; background: rgba(0, 0, 0, .07); }
 .k-traffic-label {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
   gap: 4px;
   color: var(--k-text-2);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
 }
-.k-traffic-chart { flex: 1; min-width: 36px; height: 26px; }
-.k-traffic-rate { flex-shrink: 0; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.k-traffic-chart { flex: 1; min-width: 36px; height: 30px; }
+.k-traffic-rate { flex-shrink: 0; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .k-traffic-rate.up { color: var(--k-up); }
 .k-traffic-rate.down { color: var(--k-down); }
-.k-traffic-total { min-width: 48px; flex-shrink: 0; overflow: hidden; color: var(--k-text-3); font-size: 10px; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.k-traffic-total { min-width: 52px; flex-shrink: 0; overflow: hidden; color: var(--k-text-3); font-size: 9px; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
 </style>

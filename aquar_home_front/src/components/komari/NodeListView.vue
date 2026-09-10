@@ -56,8 +56,8 @@ export default {
 </script>
 
 <style scoped>
-.k-list { width: 100%; overflow-x: auto; border: 1px solid var(--k-border); border-radius: 14px; background: var(--k-surface); backdrop-filter: blur(12px); color: var(--k-text); }
-.k-list-head, .k-list-row { display: grid; grid-template-columns: minmax(180px, 2.2fr) 1.2fr .7fr .7fr .7fr 1fr .8fr .8fr 1fr; align-items: center; gap: 12px; min-width: 800px; padding: 10px 16px; }
-.k-list-head { border-bottom: 1px solid var(--k-border-subtle); color: var(--k-text-3); font-size: 11px; font-weight: 700; }.k-list-row { border-bottom: 1px solid var(--k-border-subtle); font-size: 12px; }.k-list-row:last-child { border-bottom: 0; }.k-list-row.offline { opacity: .62; }
+.k-list { width: 100%; overflow-x: auto; border: 1px solid var(--k-border-subtle); border-radius: 17px; background: var(--k-surface); backdrop-filter: blur(18px); color: var(--k-text); box-shadow: 0 14px 32px rgba(0, 0, 0, .08); }
+.k-list-head, .k-list-row { display: grid; grid-template-columns: minmax(180px, 2.2fr) 1.2fr .7fr .7fr .7fr 1fr .8fr .8fr 1fr; align-items: center; gap: 12px; min-width: 800px; padding: 12px 17px; }
+.k-list-head { border-bottom: 1px solid var(--k-border-subtle); color: var(--k-text-3); font-size: 10px; font-weight: 800; letter-spacing: .04em; }.k-list-row { border-bottom: 1px solid var(--k-border-subtle); font-size: 12px; transition: background .18s ease; }.k-list-row:last-child { border-bottom: 0; }.k-list-row:hover { background: rgba(255, 255, 255, .045); }.k-list-row.offline { opacity: .62; }
 .col-node { display: flex; align-items: center; gap: 8px; min-width: 0; }.k-list-name { min-width: 0; overflow: hidden; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.k-list-status { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: var(--k-offline); }.k-list-status.on { background: var(--k-online); }.k-list-sub { min-width: 0; overflow: hidden; color: var(--k-text-2); text-overflow: ellipsis; white-space: nowrap; }.cpu { color: var(--k-cpu); }.memory { color: var(--k-memory); }.disk { color: var(--k-disk); }.ok { color: var(--k-expire-ok); }.urgent { color: var(--k-expire-urgent); }.expired { color: var(--k-expire-expired); }.k-list-empty { padding: 24px; color: var(--k-text-3); text-align: center; }
 </style>
