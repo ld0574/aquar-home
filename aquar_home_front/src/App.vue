@@ -89,10 +89,98 @@ export default {
           this.bgColor = config.appearance.bgColor? config.appearance.bgColor:"#42433E"
         }
       }
-      this.curTheme = {'--bgUrl': this.bgImg,'--bgColor': this.bgColor,'--blurStyle':this.blurStyle, '--bgOffset':this.bgOffset}
+      const darkBackground = Boolean(theme && theme.dark)
+      const panelTheme = darkBackground ? {
+        // Dark canvas: use a bright panel with dark, readable content.
+        '--k-panel-bg': 'rgba(248, 250, 253, .94)',
+        '--k-panel-bg-2': 'rgba(229, 235, 243, .9)',
+        '--k-panel-hover': 'rgba(255, 255, 255, .98)',
+        '--k-panel-border': 'rgba(20, 34, 52, .18)',
+        '--k-panel-border-subtle': 'rgba(20, 34, 52, .12)',
+        '--k-panel-text': '#172234',
+        '--k-panel-text-2': 'rgba(23, 34, 52, .74)',
+        '--k-panel-text-3': 'rgba(23, 34, 52, .54)',
+        '--k-panel-progress': 'rgba(23, 34, 52, .14)',
+        '--k-panel-accent': '#087ea4',
+        '--k-panel-cpu': '#087ea4',
+        '--k-panel-memory': '#7546b8',
+        '--k-panel-disk': '#a66a00',
+        '--k-panel-load': '#b83e76',
+        '--k-panel-up': '#087ea4',
+        '--k-panel-down': '#258552',
+        '--k-panel-online': '#1d9b59',
+        '--k-panel-offline': '#c14956',
+        '--k-panel-warn': '#996100',
+        '--k-panel-price-fg': '#8b5e00',
+        '--k-panel-tag-fg': '#08758d',
+        '--k-panel-lat-1': '#218a51',
+        '--k-panel-lat-2': '#759d25',
+        '--k-panel-lat-3': '#a27900',
+        '--k-panel-lat-4': '#ae5a1f',
+        '--k-panel-lat-5': '#c14956',
+        '--k-canvas-text': '#f4f7fb',
+        '--k-canvas-text-2': 'rgba(244, 247, 251, .72)',
+        '--k-canvas-text-3': 'rgba(244, 247, 251, .52)',
+        '--k-canvas-accent': '#5bcbf2',
+        '--k-canvas-online': '#55cf88',
+        '--k-canvas-warn': '#f6bd5c',
+        '--k-canvas-border': 'rgba(255, 255, 255, .14)',
+        '--k-shell-bg': 'rgba(248, 250, 253, .84)',
+        '--k-shell-border': 'rgba(20, 34, 52, .16)',
+        '--k-shell-divider': 'rgba(20, 34, 52, .18)',
+        '--k-shell-hover': 'rgba(20, 34, 52, .08)',
+        '--k-canvas-overlay-start': 'rgba(5, 10, 20, .28)',
+        '--k-canvas-overlay-end': 'rgba(5, 10, 20, .44)'
+      } : {
+        // Light canvas: use a dark panel with light content.
+        '--k-panel-bg': 'rgba(19, 25, 37, .94)',
+        '--k-panel-bg-2': 'rgba(255, 255, 255, .07)',
+        '--k-panel-hover': 'rgba(42, 53, 70, .98)',
+        '--k-panel-border': 'rgba(255, 255, 255, .16)',
+        '--k-panel-border-subtle': 'rgba(255, 255, 255, .09)',
+        '--k-panel-text': '#f4f7fb',
+        '--k-panel-text-2': 'rgba(244, 247, 251, .72)',
+        '--k-panel-text-3': 'rgba(244, 247, 251, .48)',
+        '--k-panel-progress': 'rgba(255, 255, 255, .14)',
+        '--k-panel-accent': '#5bcbf2',
+        '--k-panel-cpu': '#59c7ee',
+        '--k-panel-memory': '#a78bfa',
+        '--k-panel-disk': '#f7b955',
+        '--k-panel-load': '#f38bb9',
+        '--k-panel-up': '#56cbe8',
+        '--k-panel-down': '#67c58a',
+        '--k-panel-online': '#55cf88',
+        '--k-panel-offline': '#f17b86',
+        '--k-panel-warn': '#f6bd5c',
+        '--k-panel-price-fg': '#f6c66d',
+        '--k-panel-tag-fg': '#87ddf5',
+        '--k-panel-lat-1': '#55cf88',
+        '--k-panel-lat-2': '#b8d968',
+        '--k-panel-lat-3': '#f0c65b',
+        '--k-panel-lat-4': '#ef9e55',
+        '--k-panel-lat-5': '#f17b86',
+        '--k-canvas-text': '#172234',
+        '--k-canvas-text-2': 'rgba(23, 34, 52, .72)',
+        '--k-canvas-text-3': 'rgba(23, 34, 52, .56)',
+        '--k-canvas-accent': '#3158c7',
+        '--k-canvas-online': '#198a52',
+        '--k-canvas-warn': '#996100',
+        '--k-canvas-border': 'rgba(20, 34, 52, .18)',
+        '--k-shell-bg': 'rgba(12, 17, 27, .78)',
+        '--k-shell-border': 'rgba(255, 255, 255, .08)',
+        '--k-shell-divider': 'rgba(255, 255, 255, .12)',
+        '--k-shell-hover': 'rgba(255, 255, 255, .08)',
+        '--k-canvas-overlay-start': 'rgba(5, 10, 20, .42)',
+        '--k-canvas-overlay-end': 'rgba(5, 10, 20, .62)'
+      }
+
+      this.curTheme = Object.assign(
+        {'--bgUrl': this.bgImg, '--bgColor': this.bgColor, '--blurStyle': this.blurStyle, '--bgOffset': this.bgOffset},
+        theme && theme.ui ? theme.ui : {},
+        panelTheme
+      )
       if(theme){
         ThemeService.setupVuetifyTheme(this, theme)
-        this.curTheme = Object.assign(this.curTheme,theme.ui)
       }
 
       // else if(config.appearance.theme && this.themes[config.appearance.theme]){

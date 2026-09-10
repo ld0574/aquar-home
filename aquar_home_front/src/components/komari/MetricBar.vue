@@ -53,25 +53,25 @@ export default {
   align-items: center;
   gap: 5px;
   color: var(--k-text-2);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
 .k-metric-label .v-icon { color: var(--k-text-2); }
 .k-metric-value {
   color: var(--k-text);
-  font-size: 14px;
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
 }
 .k-metric-value strong { font-weight: 700; }
-.k-metric-value small { margin-left: 1px; color: var(--k-text-3); font-size: 10px; }
+.k-metric-value small { margin-left: 1px; color: var(--k-text-3); font-size: 11px; }
 .k-metric-detail {
   overflow: hidden;
   margin-top: 2px;
   color: var(--k-text-3);
-  font-size: 9px;
+  font-size: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

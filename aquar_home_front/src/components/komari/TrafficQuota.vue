@@ -50,11 +50,11 @@ export default {
 </script>
 
 <style scoped>
-.k-quota { min-width: 0; padding: 9px 10px 8px; border: 1px solid var(--k-border-subtle); border-radius: 12px; background: rgba(0, 0, 0, .06); }
+.k-quota { min-width: 0; padding: 9px 10px 8px; border: 1px solid var(--k-border-subtle); border-radius: 12px; background: var(--k-surface-2); }
 .k-quota-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
-.k-quota-label { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: var(--k-text-2); font-size: 11px; font-weight: 600; white-space: nowrap; }
-.k-quota-label strong { margin-left: 2px; color: var(--k-text); font-size: 12px; }
-.k-quota-usage { overflow: hidden; color: var(--k-text-3); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.k-quota-label { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: var(--k-text-2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.k-quota-label strong { margin-left: 2px; color: var(--k-text); font-size: 13px; }
+.k-quota-usage { overflow: hidden; color: var(--k-text-3); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .k-quota-track { display: flex; gap: 2px; height: 5px; }
 .k-quota-seg { flex: 1; min-width: 1px; border-radius: 999px; transition: background .3s ease; }
 </style>

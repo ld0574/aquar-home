@@ -171,11 +171,11 @@ export default {
 .k-card-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--k-offline); }
 .k-card-status.on i { background: var(--k-online); box-shadow: 0 0 6px var(--k-online); }
 .k-card-subtitle-row { display: flex; align-items: center; gap: 6px; min-width: 0; margin-top: 6px; }
-.k-card-subtitle { overflow: hidden; color: var(--k-text-3); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.k-ip { max-width: 150px; overflow: hidden; padding: 3px 7px; border: 1px solid var(--k-border-subtle); border-radius: 7px; background: rgba(255, 255, 255, .035); color: var(--k-text-3); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.k-card-subtitle { overflow: hidden; color: var(--k-text-3); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.k-ip { max-width: 150px; overflow: hidden; padding: 3px 7px; border: 1px solid var(--k-border-subtle); border-radius: 7px; background: var(--k-surface-2); color: var(--k-text-3); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .k-card-stack { display: flex; flex-direction: column; min-width: 0; gap: 14px; }
-.k-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 16px; padding: 12px 13px; border: 1px solid var(--k-border-subtle); border-radius: 14px; background: rgba(0, 0, 0, .08); }
-.k-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; padding-top: 12px; border-top: 1px solid var(--k-border-subtle); color: var(--k-text-3); font-size: 10px; }
+.k-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 16px; padding: 12px 13px; border: 1px solid var(--k-border-subtle); border-radius: 14px; background: var(--k-surface-2); }
+.k-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; padding-top: 12px; border-top: 1px solid var(--k-border-subtle); color: var(--k-text-3); font-size: 11px; }
 .k-card-foot > span { display: inline-flex; align-items: center; white-space: nowrap; }
 .k-foot-expire.ok { color: var(--k-expire-ok); }
 .k-foot-expire.urgent { color: var(--k-expire-urgent); }

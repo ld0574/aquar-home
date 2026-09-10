@@ -55,7 +55,7 @@ export default {
 
 .k-summary-label {
   color: var(--k-text-2);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -64,7 +64,7 @@ export default {
   padding-top: 11px;
   overflow: hidden;
   color: var(--k-summary-accent, var(--k-text));
-  font-size: 25px;
+  font-size: 27px;
   letter-spacing: -.035em;
   font-variant-numeric: tabular-nums;
   font-weight: 800;
@@ -76,7 +76,7 @@ export default {
   overflow: hidden;
   margin-top: 3px;
   color: var(--k-text-3);
-  font-size: 10px;
+  font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
