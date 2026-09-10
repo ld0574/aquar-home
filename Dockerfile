@@ -50,15 +50,9 @@ WORKDIR /app/aquar_home/aquar_home_server
 
 RUN npm config set registry "${NPM_REGISTRY}"
 
-# The worker is downloaded explicitly below. Since this image is intended to
-# use the prebuilt worker, do not install the large C++/Meson fallback toolchain
-# and do not spend 20+ minutes compiling when the download endpoint is slow.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       ca-certificates \
-       curl \
-       tar \
-    && rm -rf /var/lib/apt/lists/*
+# The official Node slim image already contains curl and CA certificates. The
+# worker is downloaded explicitly below, so this stage needs no apt repository
+# access and no large C++/Meson fallback toolchain.
 
 COPY ./aquar_home_server/package.json ./aquar_home_server/package-lock.json ./
 
@@ -70,29 +64,14 @@ RUN --mount=type=cache,target=/root/.npm \
     export MEDIASOUP_WORKER_BIN="${PWD}/node_modules/mediasoup/worker/out/Release/mediasoup-worker" \
     && npm ci --omit=dev --include=optional
 
+COPY ./scripts/install_mediasoup_worker.mjs ./install_mediasoup_worker.mjs
+
 # Keep this ARG after npm ci so changing the mirror only reruns this small
 # download layer instead of reinstalling every backend dependency.
 ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL
-RUN set -eux; \
-    base_url="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL%/}"; \
-    worker_version="$(node -p "require('./node_modules/mediasoup/package.json').version")"; \
-    worker_arch="$(node -p "process.arch")"; \
-    kernel_major="$(uname -r | cut -d. -f1)"; \
-    worker_name="mediasoup-worker-${worker_version}-linux-${worker_arch}-kernel${kernel_major}.tgz"; \
-    worker_path="${PWD}/node_modules/mediasoup/worker/out/Release/mediasoup-worker"; \
-    worker_archive="/tmp/${worker_name}"; \
-    worker_url="${base_url}/${worker_version}/${worker_name}"; \
-    echo "下载 mediasoup 预编译 worker：${worker_url}"; \
-    mkdir -p "$(dirname "${worker_path}")"; \
-    curl --fail --silent --show-error --location \
-      --connect-timeout 10 --max-time 120 --retry 2 --retry-delay 1 \
-      --output "${worker_archive}" "${worker_url}"; \
-    tar -xzf "${worker_archive}" -C "$(dirname "${worker_path}")"; \
-    rm -f "${worker_archive}"; \
-    chmod 0755 "${worker_path}"; \
-    worker_status=0; \
-    "${worker_path}" >/dev/null 2>&1 || worker_status=$?; \
-    test "${worker_status}" -eq 41
+RUN MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL}" \
+    node ./install_mediasoup_worker.mjs \
+    && rm -f ./install_mediasoup_worker.mjs
 
 COPY ./aquar_home_server/ ./
 
