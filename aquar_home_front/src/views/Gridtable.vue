@@ -660,9 +660,9 @@ export default {
   padding: 0 clamp(16px, 2.5vw, 38px);
   margin-bottom: 0;
   border-bottom: 1px solid var(--k-shell-border, rgba(255, 255, 255, .08));
-  background: var(--k-shell-bg, rgba(12, 17, 27, .72));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
-  backdrop-filter: blur(22px) saturate(1.25);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 .dashboard_brand { display: flex; align-items: center; gap: 9px; min-width: 148px; margin-right: clamp(18px, 3vw, 48px); }
 .brand_mark { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; overflow: hidden; border: 1px solid var(--k-shell-divider, rgba(255, 255, 255, .18)); border-radius: 9px; box-shadow: 0 5px 16px rgba(0, 0, 0, .2); }

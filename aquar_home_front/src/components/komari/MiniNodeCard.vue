@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style scoped>
-.k-mini { display: flex; flex-direction: column; min-width: 0; gap: 8px; padding: 12px 13px; border: 1px solid var(--k-border-subtle); border-radius: 13px; background: linear-gradient(145deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015)), var(--k-surface); backdrop-filter: blur(16px); color: var(--k-text); box-shadow: 0 10px 22px rgba(0, 0, 0, .07); transition: transform .2s ease, background .2s ease; }
+.k-mini { display: flex; flex-direction: column; min-width: 0; gap: 8px; padding: 12px 13px; border: 1px solid var(--k-border-subtle); border-radius: 13px; background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--k-surface); backdrop-filter: blur(16px); color: var(--k-text); box-shadow: 0 10px 22px rgba(0, 0, 0, .07); transition: transform .2s ease, background .2s ease; }
 .k-mini:hover { background: var(--k-surface-hover); transform: translateY(-2px); }.k-mini.offline { opacity: .72; }
 .k-mini-head { display: flex; align-items: center; gap: 7px; min-width: 0; }.k-mini-name { flex: 1; min-width: 0; overflow: hidden; font-size: 14px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .k-mini-status { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: var(--k-offline); }.k-mini-status.on { background: var(--k-online); box-shadow: 0 0 4px var(--k-online); }

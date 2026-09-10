@@ -154,7 +154,7 @@ export default {
   padding: 18px 18px 15px;
   border: 1px solid var(--k-border-subtle);
   border-radius: 18px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .018)), var(--k-surface);
+  background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--k-surface);
   backdrop-filter: blur(18px);
   color: var(--k-text);
   box-shadow: 0 14px 32px rgba(0, 0, 0, .1);

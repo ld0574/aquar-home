@@ -91,7 +91,7 @@ export default {
 </script>
 
 <style scoped>
-.k-card { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 11px; padding: 15px 16px 13px; border: 1px solid var(--k-border-subtle); border-radius: 16px; background: linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .018)), var(--k-surface); backdrop-filter: blur(18px); color: var(--k-text); box-shadow: 0 12px 28px rgba(0, 0, 0, .08); transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+.k-card { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 11px; padding: 15px 16px 13px; border: 1px solid var(--k-border-subtle); border-radius: 16px; background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--k-surface); backdrop-filter: blur(18px); color: var(--k-text); box-shadow: 0 12px 28px rgba(0, 0, 0, .08); transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
 .k-card::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 2px; border-radius: 0 0 4px 4px; background: linear-gradient(90deg, var(--k-accent), transparent 72%); opacity: .7; }
 .k-card:hover { background: linear-gradient(145deg, rgba(255, 255, 255, .095), rgba(255, 255, 255, .03)), var(--k-surface-hover); box-shadow: 0 17px 34px rgba(0, 0, 0, .14); transform: translateY(-3px); }
 .k-card.offline { opacity: .72; }

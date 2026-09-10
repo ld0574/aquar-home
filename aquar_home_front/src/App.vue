@@ -92,9 +92,9 @@ export default {
       const darkBackground = Boolean(theme && theme.dark)
       const panelTheme = darkBackground ? {
         // Dark canvas: use a bright panel with dark, readable content.
-        '--k-panel-bg': 'rgba(248, 250, 253, .94)',
-        '--k-panel-bg-2': 'rgba(229, 235, 243, .9)',
-        '--k-panel-hover': 'rgba(255, 255, 255, .98)',
+        '--k-panel-bg': 'rgba(236, 241, 247, .92)',
+        '--k-panel-bg-2': 'rgba(222, 229, 237, .84)',
+        '--k-panel-hover': 'rgba(247, 249, 252, .95)',
         '--k-panel-border': 'rgba(20, 34, 52, .18)',
         '--k-panel-border-subtle': 'rgba(20, 34, 52, .12)',
         '--k-panel-text': '#172234',

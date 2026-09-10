@@ -27,13 +27,13 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 124px;
+  min-height: 96px;
   min-width: 0;
   overflow: hidden;
-  padding: 17px 18px 15px;
+  padding: 13px 16px 12px;
   border: 1px solid var(--k-border-subtle);
-  border-radius: 17px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, .025)), var(--k-surface);
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--k-surface);
   box-shadow: 0 14px 32px rgba(0, 0, 0, .08);
   color: var(--k-text);
 }
@@ -42,15 +42,16 @@ export default {
   position: absolute;
   right: -26px;
   bottom: -34px;
-  width: 100px;
-  height: 100px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   background: var(--k-summary-accent, rgba(89, 199, 238, .12));
-  filter: blur(18px);
+  filter: blur(22px);
+  opacity: .32;
   pointer-events: none;
 }
-.k-summary-top { display: flex; align-items: center; gap: 9px; }
-.k-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: var(--k-summary-icon-bg, rgba(89, 199, 238, .13)); color: var(--k-summary-accent, var(--k-accent)); }
+.k-summary-top { display: flex; align-items: center; gap: 8px; }
+.k-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--k-summary-icon-bg, rgba(89, 199, 238, .13)); color: var(--k-summary-accent, var(--k-accent)); }
 .k-summary-icon .v-icon { color: inherit; }
 
 .k-summary-label {
@@ -61,10 +62,10 @@ export default {
 
 .k-summary-value {
   margin-top: auto;
-  padding-top: 11px;
+  padding-top: 7px;
   overflow: hidden;
   color: var(--k-summary-accent, var(--k-text));
-  font-size: 27px;
+  font-size: 26px;
   letter-spacing: -.035em;
   font-variant-numeric: tabular-nums;
   font-weight: 800;
@@ -76,7 +77,7 @@ export default {
   overflow: hidden;
   margin-top: 3px;
   color: var(--k-text-3);
-  font-size: 11px;
+  font-size: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
