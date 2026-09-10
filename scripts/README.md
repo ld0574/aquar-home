@@ -5,6 +5,7 @@
 | 脚本 | 用途 | 备注 |
 | --- | --- | --- |
 | `deploy_docker.sh` | 拉取源码、构建 AquarHome 镜像并启动旧版 Compose 环境 | 传入 `push` 会尝试推送 Docker Hub |
+| `update_docker.sh` | 使用 Docker Compose v2 一键拉取、构建并更新当前部署 | 支持 `NPM_REGISTRY`、`--no-cache` 和可选 `--down` |
 | `redeploy.sh` | 源码方式重新构建前端并重启后端 | 依赖 PM2 和现有部署路径 |
 | `setup_aquar.sh` | 初始化 NFS、Docker、Python 虚拟环境和家庭服务 Compose | 主要面向旧 Ubuntu 环境 |
 | `setupbuildenv.sh` | 初始化打包/构建环境 | 会修改 apt、Docker 和系统服务配置，执行前请审阅 |
@@ -18,6 +19,7 @@
 ```bash
 # 在仓库根目录执行
 bash scripts/deploy_docker.sh
+bash scripts/update_docker.sh
 bash scripts/redeploy.sh
 bash scripts/setup_aquar.sh <NFS服务器地址>
 bash scripts/setupbuildenv.sh <仓库地址>
@@ -27,5 +29,17 @@ sudo python3 scripts/ipupdater.py
 sudo python3 scripts/truenasseeker.py
 bash scripts/sync_phase.sh --source-dir=/path/to/source
 ```
+
+推荐使用 `update_docker.sh` 更新 Docker 部署。脚本会自动定位仓库根目录，执行 `git pull --ff-only`、校验 Compose 配置、构建本地镜像并使用 `--pull never` 重建容器：
+
+```bash
+# 默认使用 npmmirror 加速源
+bash scripts/update_docker.sh
+
+# 完全重新构建，并在构建前停止旧容器
+NPM_REGISTRY=https://registry.npmmirror.com bash scripts/update_docker.sh --no-cache --down
+```
+
+默认不会先执行 `docker compose down`，而是在新镜像构建完成后直接 `--force-recreate`，可以减少停机时间。脚本检测到工作区有未提交改动时会停止，避免更新时覆盖服务器上的本地修改。
 
 `setup_aquar.sh`、`setupbuildenv.sh` 和 `setupproxy.sh` 会写入 `/etc`、`/usr/local/bin`、`/lib/systemd` 等系统路径，不能在不审阅的情况下直接执行。脚本归档位置变化后，systemd 服务中的 `ExecStart` 路径也应指向 `scripts/` 下的新位置。

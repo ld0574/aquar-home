@@ -118,7 +118,7 @@ docker compose ps
 在本仓库根目录执行：
 
 ```bash
-docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t aquarhome:local .
+docker build --build-arg NPM_REGISTRY=https://registry.npmmirror.com -t aquarhome:local .
 ```
 
 构建完成后，将部署目录 `.env` 中的 `AQUAR_IMAGE` 改为 `aquarhome:local`：
@@ -141,7 +141,7 @@ docker compose ps
 镜像名只是本机 tag，不代表镜像已经推送到仓库。也可以直接使用与 Docker Hub 相同的 tag 构建，但不执行 `docker push`：
 
 ```bash
-docker build --build-arg NPM_REGISTRY=https://registry.npmjs.org -t ld0574/aquarhome:latest .
+docker build --build-arg NPM_REGISTRY=https://registry.npmmirror.com -t ld0574/aquarhome:latest .
 ```
 
 如果直接执行 `docker push` 时遇到 Docker Hub 网络问题，而又不希望修改 Docker daemon 的代理配置，可以让 `skopeo` 通过当前终端代理直接推送。部分 Debian 软件源中的旧版 skopeo 访问 `docker-daemon:` 时会使用过低的 Docker API 版本，因此这里使用 `docker save` 导出的归档文件作为输入：
@@ -165,6 +165,14 @@ skopeo copy \
 ```bash
 docker compose up --pull never -d
 ```
+
+如果仓库已经部署在服务器上，后续更新可以直接在仓库根目录执行一键脚本：
+
+```bash
+bash scripts/update_docker.sh
+```
+
+脚本会执行 `git pull --ff-only`、校验 Compose 配置、使用 `NPM_REGISTRY=https://registry.npmmirror.com` 加速构建镜像，并以 `--pull never --force-recreate` 启动容器。默认不执行 `docker compose down`，需要完全停止旧容器时再追加 `--down`；需要清空构建缓存时追加 `--no-cache`。
 
 如果要在另一台服务器使用本地构建的镜像，也不需要推送到 Docker Hub，可以导出并导入镜像：
 

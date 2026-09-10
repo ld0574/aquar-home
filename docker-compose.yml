@@ -1,6 +1,6 @@
 services:
   aquarhome:
-    image: ld0574/aquarhome:latest
+    image: ${AQUAR_IMAGE:-ld0574/aquarhome:latest}
     container_name: aquarhome
     environment:
       PORT: ${AQUAR_PORT:-8172}
