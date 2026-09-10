@@ -50,9 +50,8 @@ WORKDIR /app/aquar_home/aquar_home_server
 
 RUN npm config set registry "${NPM_REGISTRY}"
 
-# The official Node slim image already contains curl and CA certificates. The
-# worker is downloaded explicitly below, so this stage needs no apt repository
-# access and no large C++/Meson fallback toolchain.
+# The worker is downloaded explicitly below through the existing axios
+# dependency, so this stage needs no apt repository access or external tool.
 
 COPY ./aquar_home_server/package.json ./aquar_home_server/package-lock.json ./
 

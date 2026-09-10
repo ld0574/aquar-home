@@ -91,8 +91,8 @@ if (( NO_CACHE )); then
   build_args=(--no-cache "${build_args[@]}")
 fi
 
-# Docker's predefined proxy build args let apt, npm and curl share a proxy
-# when the host has one configured for this shell.
+# Docker's predefined proxy build args let npm and other build steps share a
+# proxy when the host has one configured for this shell.
 for proxy_var in HTTP_PROXY HTTPS_PROXY NO_PROXY http_proxy https_proxy no_proxy; do
   if [[ -n "${!proxy_var:-}" ]]; then
     build_args+=(--build-arg "${proxy_var}=${!proxy_var}")

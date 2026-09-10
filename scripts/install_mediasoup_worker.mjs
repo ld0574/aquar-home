@@ -7,8 +7,11 @@ import {
 	mkdtemp,
 	readFile,
 	rm,
+	writeFile,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import axios from 'axios';
+import { getProxyForUrl } from 'proxy-from-env';
 import * as tar from 'tar';
 
 const baseUrl = process.env.MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL?.replace(
@@ -44,37 +47,46 @@ const archivePath = path.join(temporaryDirectory, workerName);
 try {
 	console.log(`下载 mediasoup 预编译 worker：${workerUrl}`);
 
-	const download = spawnSync(
-		'curl',
-		[
-			'--fail',
-			'--silent',
-			'--show-error',
-			'--location',
-			'--connect-timeout',
-			'10',
-			'--max-time',
-			'120',
-			'--retry',
-			'2',
-			'--retry-delay',
-			'1',
-			'--retry-max-time',
-			'120',
-			'--output',
-			archivePath,
-			workerUrl,
-		],
-		{ stdio: 'inherit', env: process.env }
-	);
+	const proxyUrl = getProxyForUrl(workerUrl);
+	let proxy = false;
 
-	if (download.error) {
-		throw download.error;
+	if (proxyUrl) {
+		const parsedProxyUrl = new URL(proxyUrl);
+
+		if (!['http:', 'https:'].includes(parsedProxyUrl.protocol)) {
+			throw new Error(
+				`unsupported proxy protocol for worker download: ${parsedProxyUrl.protocol}`
+			);
+		}
+
+		proxy = {
+			protocol: parsedProxyUrl.protocol.slice(0, -1),
+			host: parsedProxyUrl.hostname,
+			port: Number(
+				parsedProxyUrl.port ||
+					(parsedProxyUrl.protocol === 'https:' ? 443 : 80)
+			),
+			...(parsedProxyUrl.username
+				? {
+					auth: {
+						username: decodeURIComponent(parsedProxyUrl.username),
+						password: decodeURIComponent(parsedProxyUrl.password),
+					},
+				}
+				: {}),
+		};
+		console.log(`使用下载代理：${parsedProxyUrl.protocol}//${parsedProxyUrl.host}`);
 	}
 
-	if (download.status !== 0) {
-		throw new Error(`curl exited with status ${download.status}`);
-	}
+	const response = await axios.get(workerUrl, {
+		maxBodyLength: 64 * 1024 * 1024,
+		maxContentLength: 64 * 1024 * 1024,
+		proxy,
+		responseType: 'arraybuffer',
+		timeout: 120_000,
+	});
+
+	await writeFile(archivePath, response.data);
 
 	await mkdir(workerDirectory, { recursive: true });
 	await tar.x({
