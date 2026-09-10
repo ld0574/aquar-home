@@ -2,13 +2,11 @@
   <section class="komari-page" aria-label="服务器监控">
     <header class="k-head">
       <div class="k-head-main">
-        <div class="k-eyebrow"><span class="k-eyebrow-mark"></span>AQUAR / MONITOR<span class="k-eyebrow-count">{{ nodes.length }} 台设备</span></div>
         <div class="k-title">
           <span class="k-title-icon"><v-icon>mdi-server-network</v-icon></span>
           <span>服务器监控</span>
           <span class="k-connection-badge" :class="connectionState"><i></i>{{ connectionLabel }}</span>
         </div>
-        <p class="k-subtitle">实时掌握节点性能、流量与网络质量</p>
       </div>
 
       <div class="k-toolbar">
@@ -58,7 +56,7 @@
     <template v-else>
       <div v-if="nodes.length" class="k-overview">
         <SummaryCard icon="mdi-access-point-network" label="在线节点" :value="onlineCount + ' / ' + nodes.length" tone="online" note="实时状态" />
-        <SummaryCard icon="mdi-arrow-down-up" label="实时带宽" :value="summaryBandwidth" tone="bandwidth" note="所有节点合计" />
+        <SummaryCard icon="mdi-swap-vertical" label="实时带宽" :value="summaryBandwidth" tone="bandwidth" note="所有节点合计" />
         <SummaryCard icon="mdi-database" label="累计流量" :value="summaryTraffic" tone="traffic" note="上行 + 下行" />
         <SummaryCard icon="mdi-currency-cny" label="资产概览" :value="assetValue" tone="asset" :note="assetNote" />
       </div>
@@ -694,8 +692,8 @@ export default {
   position: relative;
   max-width: 1680px;
   margin: 0 auto;
-  gap: 20px;
-  padding: 34px clamp(18px, 2.8vw, 46px) 58px;
+  gap: 18px;
+  padding: 26px clamp(18px, 2.8vw, 46px) 56px;
 }
 .komari-page::before {
   content: '';
@@ -709,23 +707,19 @@ export default {
   background: radial-gradient(circle, rgba(63, 188, 224, .12), transparent 68%);
   filter: blur(8px);
 }
-.k-head { align-items: flex-end; gap: 24px; padding: 2px 0 1px; }
+.k-head { align-items: center; gap: 24px; padding: 0; }
 .k-head-main { min-width: 0; }
-.k-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: var(--k-canvas-text-3, var(--k-text-3)); font-size: 10px; font-weight: 800; letter-spacing: .16em; }
-.k-eyebrow-mark { width: 7px; height: 7px; border-radius: 50%; background: var(--k-canvas-accent, var(--k-accent)); box-shadow: 0 0 0 4px rgba(89, 199, 238, .1); }
-.k-eyebrow-count { margin-left: 2px; padding-left: 10px; border-left: 1px solid var(--k-canvas-border, var(--k-border-subtle)); color: var(--k-canvas-text-3, var(--k-text-3)); font-weight: 600; letter-spacing: 0; }
-.k-title { gap: 12px; color: var(--k-canvas-text, var(--k-text)); font-size: clamp(24px, 2.2vw, 34px); letter-spacing: -.045em; }
-.k-title-icon { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border: 1px solid rgba(89, 199, 238, .22); border-radius: 13px; background: linear-gradient(145deg, rgba(89, 199, 238, .22), rgba(89, 199, 238, .06)); color: var(--k-canvas-accent, var(--k-accent)); box-shadow: 0 10px 26px rgba(15, 166, 206, .11); }
-.k-title-icon .v-icon { color: inherit !important; font-size: 23px; }
-.k-subtitle { margin: 8px 0 0 54px; color: var(--k-canvas-text-3, var(--k-text-3)); font-size: 12px; }
-.k-connection-badge { display: inline-flex; align-items: center; gap: 6px; margin-left: 2px; padding: 5px 9px; border: 1px solid var(--k-canvas-border, var(--k-border-subtle)); border-radius: 999px; color: var(--k-canvas-text-3, var(--k-text-3)); font-size: 10px; font-weight: 700; letter-spacing: 0; vertical-align: middle; }
+.k-title { gap: 11px; color: var(--k-canvas-text, var(--k-text)); font-size: clamp(24px, 2vw, 30px); letter-spacing: -.04em; }
+.k-title-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid rgba(89, 199, 238, .2); border-radius: 12px; background: linear-gradient(145deg, rgba(89, 199, 238, .18), rgba(89, 199, 238, .045)); color: var(--k-canvas-accent, var(--k-accent)); box-shadow: 0 8px 22px rgba(15, 166, 206, .09), inset 0 1px 0 rgba(255, 255, 255, .09); }
+.k-title-icon .v-icon { color: inherit !important; font-size: 21px; }
+.k-connection-badge { display: inline-flex; align-items: center; gap: 6px; margin-left: 1px; padding: 4px 8px; border: 1px solid var(--k-canvas-border, var(--k-border-subtle)); border-radius: 999px; color: var(--k-canvas-text-3, var(--k-text-3)); font-size: 10px; font-weight: 700; letter-spacing: 0; vertical-align: middle; }
 .k-connection-badge i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .k-connection-badge.connected { border-color: rgba(85, 207, 136, .22); background: rgba(85, 207, 136, .09); color: var(--k-canvas-online, var(--k-online)); }
 .k-connection-badge.connecting, .k-connection-badge.degraded, .k-connection-badge.error { border-color: rgba(246, 189, 92, .22); background: rgba(246, 189, 92, .09); color: var(--k-canvas-warn, var(--k-warn)); }
 .k-connection-badge.disconnected { color: var(--k-canvas-text-3, var(--k-text-3)); }
 .k-connection-label, .k-connection-dot { display: none; }
-.k-toolbar { gap: 9px; }
-.k-sort, .k-view { min-height: 38px; padding: 4px; border: 1px solid var(--k-border); border-radius: 12px; background: var(--k-surface); box-shadow: 0 8px 24px rgba(0, 0, 0, .09); }
+.k-toolbar { gap: 8px; }
+.k-sort, .k-view { min-height: 36px; padding: 3px; border: 1px solid var(--k-border); border-radius: 11px; background: var(--k-surface); box-shadow: 0 8px 22px rgba(0, 0, 0, .08), inset 0 1px 0 rgba(255, 255, 255, .025); }
 .k-sort { gap: 4px; padding-left: 10px; }
 .k-sort > .v-icon { color: var(--k-text-3) !important; }
 .k-sort select { max-width: 104px; padding: 5px 2px; color: var(--k-text-2); font-size: 11px; font-weight: 700; }
@@ -735,7 +729,7 @@ export default {
 .k-view-button { width: 31px; height: 29px; color: var(--k-text-3); }
 .k-tool-button .v-icon, .k-view-button .v-icon, .k-refresh .v-icon { color: inherit !important; }
 .k-view-button.active { background: rgba(89, 199, 238, .15); color: var(--k-accent); box-shadow: inset 0 0 0 1px rgba(89, 199, 238, .12); }
-.k-refresh { min-height: 38px; padding: 0 13px; border: 1px solid rgba(89, 199, 238, .28); border-radius: 12px; background: rgba(89, 199, 238, .12); color: var(--k-accent); font-size: 11px; font-weight: 800; box-shadow: 0 8px 24px rgba(0, 0, 0, .08); }
+.k-refresh { min-height: 36px; padding: 0 12px; border: 1px solid rgba(89, 199, 238, .24); border-radius: 11px; background: rgba(89, 199, 238, .1); color: var(--k-accent); font-size: 11px; font-weight: 800; box-shadow: 0 8px 22px rgba(0, 0, 0, .07), inset 0 1px 0 rgba(255, 255, 255, .035); }
 .k-refresh:hover:not(:disabled) { background: rgba(89, 199, 238, .2); color: var(--k-text); }
 .k-alert { padding: 12px 14px; border: 1px solid rgba(241, 123, 134, .28); border-radius: 13px; background: rgba(241, 123, 134, .1); }
 .k-alert button, .k-empty button { padding: 4px 9px; border-radius: 7px; background: var(--k-surface-2); }
@@ -755,19 +749,17 @@ export default {
 .k-state { min-height: 300px; }
 .k-loading { min-height: 240px; }
 @media (max-width: 760px) {
-  .komari-page { gap: 18px; padding: 24px 14px 42px; }
+  .komari-page { gap: 17px; padding: 20px 14px 42px; }
   .k-head { align-items: flex-start; }
   .k-title { font-size: 23px; }
-  .k-title-icon { width: 38px; height: 38px; border-radius: 11px; }
-  .k-subtitle { margin-left: 50px; }
+  .k-title-icon { width: 36px; height: 36px; border-radius: 11px; }
   .k-connection-badge { padding: 4px 7px; }
   .k-grid, .k-grid.view-compact, .k-grid.view-mini { grid-template-columns: minmax(0, 1fr); }
   .k-section-head { align-items: flex-start; }
 }
 @media (max-width: 420px) {
-  .k-eyebrow-count { display: none; }
   .k-title { flex-wrap: wrap; }
-  .k-connection-badge { margin-left: 50px; margin-top: -4px; }
+  .k-connection-badge { margin-left: 47px; margin-top: -3px; }
   .k-section-meta { display: none; }
 }
 </style>

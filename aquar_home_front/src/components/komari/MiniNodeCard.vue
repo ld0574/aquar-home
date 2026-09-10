@@ -9,7 +9,7 @@
       <span><v-icon x-small class="cpu">mdi-chip</v-icon>{{ cpuPct.toFixed(0) }}%</span>
       <span><v-icon x-small class="memory">mdi-memory</v-icon>{{ memoryPct.toFixed(0) }}%</span>
       <span><v-icon x-small class="disk">mdi-harddisk</v-icon>{{ diskPct.toFixed(0) }}%</span>
-      <span><v-icon x-small>mdi-arrow-down-up</v-icon>{{ formatRate(netIn + netOut) }}</span>
+      <span><v-icon x-small>mdi-swap-vertical</v-icon>{{ formatRate(netIn + netOut) }}</span>
     </div>
   </article>
 </template>

@@ -17,7 +17,7 @@
     <div class="k-compact-health">
       <span :style="{ color: latencyColor }"><v-icon x-small>mdi-pulse</v-icon>{{ hasLatency ? Math.round(ping.lastValue) + 'ms' : '—' }}</span>
       <span :style="{ color: lossColor }"><v-icon x-small>mdi-close-circle-outline</v-icon>{{ hasLoss ? ping.loss.toFixed(1) + '%' : '—' }}</span>
-      <span class="k-compact-net"><v-icon x-small>mdi-arrow-down-up</v-icon>{{ formatRate(netIn + netOut) }}</span>
+      <span class="k-compact-net"><v-icon x-small>mdi-swap-vertical</v-icon>{{ formatRate(netIn + netOut) }}</span>
     </div>
     <footer class="k-compact-foot">
       <span v-if="expire" :class="expire.tone">{{ expire.label }}</span>

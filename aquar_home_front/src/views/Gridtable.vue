@@ -656,7 +656,7 @@ export default {
   position: sticky;
   top: 0;
   z-index: 20;
-  min-height: 56px;
+  min-height: 48px;
   padding: 0 clamp(16px, 2.5vw, 38px);
   margin-bottom: 0;
   border-bottom: 1px solid var(--k-shell-border, rgba(255, 255, 255, .08));
@@ -664,37 +664,37 @@ export default {
   box-shadow: none;
   backdrop-filter: none;
 }
-.dashboard_brand { display: flex; align-items: center; gap: 9px; min-width: 148px; margin-right: clamp(18px, 3vw, 48px); }
-.brand_mark { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; overflow: hidden; border: 1px solid var(--k-shell-divider, rgba(255, 255, 255, .18)); border-radius: 9px; box-shadow: 0 5px 16px rgba(0, 0, 0, .2); }
+.dashboard_brand { display: flex; align-items: center; gap: 8px; min-width: 144px; margin-right: clamp(16px, 3vw, 44px); }
+.brand_mark { display: inline-flex; align-items: center; justify-content: center; width: 27px; height: 27px; overflow: hidden; border: 1px solid var(--k-shell-divider, rgba(255, 255, 255, .18)); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
 .brand_mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand_copy { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
 .brand_copy strong { color: var(--tcolor_main, #f3f5f7); font-size: 14px; font-weight: 900; letter-spacing: .12em; }
 .brand_copy small { color: var(--tcolor_disable, rgba(255,255,255,.42)); font-size: 7px; font-weight: 700; letter-spacing: .16em; }
 .dashboard_tabs { align-self: stretch; flex: 1; min-width: 0; }
-.dashboard_tabs ::v-deep .v-tabs { height: 56px; }
-.dashboard_tabs ::v-deep .v-tabs-bar { height: 56px; background: transparent; }
-.dashboard_tabs ::v-deep .v-tab { min-width: 90px; height: 56px; padding: 0 17px; color: var(--tcolor_disable, rgba(255,255,255,.48)); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.dashboard_tabs ::v-deep .v-tabs { height: 48px; }
+.dashboard_tabs ::v-deep .v-tabs-bar { height: 48px; background: transparent; }
+.dashboard_tabs ::v-deep .v-tab { min-width: 86px; height: 48px; padding: 0 15px; color: var(--tcolor_disable, rgba(255,255,255,.48)); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
 .dashboard_tabs ::v-deep .v-tab:hover { color: var(--tcolor_main, #fff); }
 .dashboard_tabs ::v-deep .v-tab--active { color: var(--tcolor_primary, #5bc9ef) !important; }
 .dashboard_tabs ::v-deep .v-tabs-slider { height: 3px; border-radius: 3px 3px 0 0; background: var(--tcolor_primary, #5bc9ef); }
 .dashboard_actions { display: flex; align-items: center; gap: 5px; margin-left: 12px; }
-.header_action { width: 32px !important; height: 32px !important; margin: 0 !important; border-radius: 9px; }
+.header_action { width: 28px !important; height: 28px !important; margin: 0 !important; border-radius: 8px; }
 .header_action::before { opacity: 0 !important; }
 .header_action:hover { background: var(--k-shell-hover, rgba(255, 255, 255, .08)); }
-.header_action .v-icon { font-size: 19px !important; }
-.header_divider { width: 1px; height: 20px; margin: 0 6px; background: var(--k-shell-divider, rgba(255,255,255,.12)); }
+.header_action .v-icon { font-size: 18px !important; }
+.header_divider { width: 1px; height: 18px; margin: 0 5px; background: var(--k-shell-divider, rgba(255,255,255,.12)); }
 .grid_container.is-komari { isolation: isolate; min-height: 100vh; }
 .grid_container.is-komari::before { content: ''; position: fixed; z-index: 0; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; background: linear-gradient(180deg, var(--k-canvas-overlay-start, rgba(5, 10, 20, .42)), var(--k-canvas-overlay-end, rgba(5, 10, 20, .62))); }
 .grid_container.is-komari > .dashboard_header { position: sticky; z-index: 20; }
 .grid_container.is-komari > .komari-page { position: relative; z-index: 1; }
 @media (max-width: 680px) {
-  .dashboard_header { min-height: 52px; padding: 0 12px; }
+  .dashboard_header { min-height: 46px; padding: 0 10px; }
   .dashboard_brand { min-width: auto; margin-right: 8px; }
   .brand_copy { display: none; }
-  .brand_mark { width: 28px; height: 28px; border-radius: 8px; }
-  .dashboard_tabs ::v-deep .v-tabs, .dashboard_tabs ::v-deep .v-tabs-bar, .dashboard_tabs ::v-deep .v-tab { height: 52px; }
+  .brand_mark { width: 26px; height: 26px; border-radius: 8px; }
+  .dashboard_tabs ::v-deep .v-tabs, .dashboard_tabs ::v-deep .v-tabs-bar, .dashboard_tabs ::v-deep .v-tab { height: 46px; }
   .dashboard_tabs ::v-deep .v-tab { min-width: 68px; padding: 0 10px; font-size: 11px; }
-  .header_action { width: 30px !important; height: 30px !important; }
+  .header_action { width: 28px !important; height: 28px !important; }
   .dashboard_actions { margin-left: 4px; }
   .header_action:not(.header_settings) { display: none; }
   .header_divider { display: none; }

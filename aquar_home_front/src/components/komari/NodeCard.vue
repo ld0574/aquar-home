@@ -95,7 +95,7 @@ export default {
     name() { return this.node.name || this.node.display_name || this.node.remark || this.node.uuid || '未知节点' },
     region() { return this.node.region || this.node.location || '' },
     subtitle() {
-      return [this.node.group, this.region].filter(Boolean).join(' · ')
+      return this.node.group || ''
     },
     os() { return this.node.os || this.node.platform || '' },
     ipv4() { return this.node.ipv4 || this.node.ip || '' },
@@ -166,17 +166,17 @@ export default {
 .k-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .k-card-title-block { min-width: 0; flex: 1; }
 .k-card-title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.k-card-name { min-width: 0; overflow: hidden; color: var(--k-text); font-size: 16px; font-weight: 800; letter-spacing: -.018em; text-overflow: ellipsis; white-space: nowrap; }
+.k-card-name { min-width: 0; overflow: hidden; color: var(--k-text); font-size: 17px; font-weight: 800; letter-spacing: -.022em; text-overflow: ellipsis; white-space: nowrap; }
 .k-card-status { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 9px; height: 9px; border-radius: 50%; }
 .k-card-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--k-offline); }
 .k-card-status.on i { background: var(--k-online); box-shadow: 0 0 6px var(--k-online); }
 .k-card-subtitle-row { display: flex; align-items: center; gap: 6px; min-width: 0; margin-top: 6px; }
 .k-card-subtitle { overflow: hidden; color: var(--k-text-3); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.k-ip { max-width: 150px; overflow: hidden; padding: 3px 7px; border: 1px solid var(--k-border-subtle); border-radius: 7px; background: var(--k-surface-2); color: var(--k-text-3); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.k-ip { max-width: 150px; overflow: hidden; padding: 2px 7px; border: 1px solid var(--k-border-subtle); border-radius: 6px; background: rgba(255, 255, 255, .025); color: var(--k-text-3); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; letter-spacing: .015em; text-overflow: ellipsis; white-space: nowrap; }
 .k-card-stack { display: flex; flex-direction: column; min-width: 0; gap: 12px; }
 .k-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 16px; padding: 12px 13px; border: 1px solid var(--k-border-subtle); border-radius: 14px; background: var(--k-surface-2); }
 .k-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; padding-top: 10px; border-top: 1px solid var(--k-border-subtle); color: var(--k-text-3); font-size: 11px; }
-.k-card-foot > span { display: inline-flex; align-items: center; white-space: nowrap; }
+.k-card-foot > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .k-card-foot .v-icon { color: currentColor !important; }
 .k-foot-expire.ok { color: var(--k-expire-ok); }
 .k-foot-expire.urgent { color: var(--k-expire-urgent); }
