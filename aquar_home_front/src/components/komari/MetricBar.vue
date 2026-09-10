@@ -57,7 +57,7 @@ export default {
   font-weight: 700;
   white-space: nowrap;
 }
-.k-metric-label .v-icon { color: var(--k-text-2); }
+.k-metric-label .v-icon { color: var(--k-text-2) !important; }
 .k-metric-value {
   color: var(--k-text);
   font-size: 16px;
@@ -83,5 +83,5 @@ export default {
   background: var(--k-progress-bg);
   transition: background .3s ease;
 }
-.k-metric-seg.active { background: var(--k-seg-paint); box-shadow: 0 0 7px color-mix(in srgb, var(--k-seg-paint) 38%, transparent); }
+.k-metric-seg.active { background: var(--k-seg-paint); box-shadow: 0 0 5px color-mix(in srgb, var(--k-seg-paint) 22%, transparent); }
 </style>

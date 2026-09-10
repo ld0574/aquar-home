@@ -27,14 +27,14 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 96px;
+  min-height: 84px;
   min-width: 0;
   overflow: hidden;
-  padding: 13px 16px 12px;
+  padding: 11px 14px 10px;
   border: 1px solid var(--k-border-subtle);
-  border-radius: 15px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--k-surface);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, .08);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .008)), var(--k-surface);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .025);
   color: var(--k-text);
 }
 .k-summary-card::after {
@@ -47,12 +47,12 @@ export default {
   border-radius: 50%;
   background: var(--k-summary-accent, rgba(89, 199, 238, .12));
   filter: blur(22px);
-  opacity: .32;
+  opacity: .2;
   pointer-events: none;
 }
 .k-summary-top { display: flex; align-items: center; gap: 8px; }
-.k-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--k-summary-icon-bg, rgba(89, 199, 238, .13)); color: var(--k-summary-accent, var(--k-accent)); }
-.k-summary-icon .v-icon { color: inherit; }
+.k-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; background: var(--k-summary-icon-bg, rgba(89, 199, 238, .1)); color: var(--k-summary-accent, var(--k-accent)); }
+.k-summary-icon .v-icon { color: inherit !important; }
 
 .k-summary-label {
   color: var(--k-text-2);
@@ -62,10 +62,10 @@ export default {
 
 .k-summary-value {
   margin-top: auto;
-  padding-top: 7px;
+  padding-top: 5px;
   overflow: hidden;
   color: var(--k-summary-accent, var(--k-text));
-  font-size: 26px;
+  font-size: 24px;
   letter-spacing: -.035em;
   font-variant-numeric: tabular-nums;
   font-weight: 800;
@@ -82,8 +82,8 @@ export default {
   white-space: nowrap;
 }
 
-.tone-online { --k-summary-accent: var(--k-online); --k-summary-icon-bg: rgba(85, 207, 136, .13); }
-.tone-bandwidth { --k-summary-accent: var(--k-up); --k-summary-icon-bg: rgba(86, 203, 232, .13); }
-.tone-traffic { --k-summary-accent: var(--k-memory); --k-summary-icon-bg: rgba(167, 139, 250, .13); }
-.tone-asset { --k-summary-accent: var(--k-warn); --k-summary-icon-bg: rgba(246, 189, 92, .13); }
+.tone-online { --k-summary-accent: var(--k-online); --k-summary-icon-bg: rgba(85, 207, 136, .1); }
+.tone-bandwidth { --k-summary-accent: var(--k-up); --k-summary-icon-bg: rgba(86, 203, 232, .1); }
+.tone-traffic { --k-summary-accent: var(--k-memory); --k-summary-icon-bg: rgba(167, 139, 250, .1); }
+.tone-asset { --k-summary-accent: var(--k-warn); --k-summary-icon-bg: rgba(246, 189, 92, .1); }
 </style>

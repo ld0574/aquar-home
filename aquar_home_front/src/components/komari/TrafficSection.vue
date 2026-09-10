@@ -36,16 +36,21 @@ export default {
 
 <style scoped>
 .k-traffic { display: flex; flex-direction: column; gap: 6px; }
-.k-traffic-row { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 6px 8px; border: 1px solid var(--k-border-subtle); border-radius: 10px; background: var(--k-surface-2); }
+.k-traffic-row { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 7px 9px; border: 1px solid var(--k-border-subtle); border-radius: 10px; background: var(--k-surface-2); transition: border-color .18s ease, background .18s ease; }
+.k-traffic-row:hover { border-color: var(--k-border); background: rgba(255, 255, 255, .045); }
 .k-traffic-label {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
+  min-width: 44px;
   gap: 4px;
   color: var(--k-text-2);
   font-size: 11px;
   font-weight: 700;
 }
+.k-traffic-label .v-icon { font-size: 15px !important; }
+.k-traffic-row:first-child .k-traffic-label .v-icon { color: var(--k-up) !important; }
+.k-traffic-row:last-child .k-traffic-label .v-icon { color: var(--k-down) !important; }
 .k-traffic-chart { flex: 1; min-width: 36px; height: 30px; }
 .k-traffic-rate { flex-shrink: 0; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .k-traffic-rate.up { color: var(--k-up); }

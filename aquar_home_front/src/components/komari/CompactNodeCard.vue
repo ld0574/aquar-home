@@ -91,7 +91,7 @@ export default {
 </script>
 
 <style scoped>
-.k-card { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 11px; padding: 15px 16px 13px; border: 1px solid var(--k-border-subtle); border-radius: 16px; background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012)), var(--k-surface); backdrop-filter: blur(18px); color: var(--k-text); box-shadow: 0 12px 28px rgba(0, 0, 0, .08); transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+.k-card { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 11px; padding: 15px 16px 13px; border: 1px solid var(--k-border-subtle); border-radius: 16px; background: linear-gradient(145deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .008)), var(--k-surface); backdrop-filter: blur(18px); color: var(--k-text); box-shadow: 0 12px 30px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .025); transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
 .k-card::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 2px; border-radius: 0 0 4px 4px; background: linear-gradient(90deg, var(--k-accent), transparent 72%); opacity: .7; }
 .k-card:hover { background: linear-gradient(145deg, rgba(255, 255, 255, .095), rgba(255, 255, 255, .03)), var(--k-surface-hover); box-shadow: 0 17px 34px rgba(0, 0, 0, .14); transform: translateY(-3px); }
 .k-card.offline { opacity: .72; }
@@ -104,6 +104,7 @@ export default {
 .k-compact-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; padding: 10px 11px; border: 1px solid var(--k-border-subtle); border-radius: 12px; background: var(--k-surface-2); }
 .k-compact-metrics > div { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; }
 .k-compact-metrics span { display: inline-flex; align-items: center; gap: 4px; color: var(--k-text-2); font-weight: 600; }
+.k-compact-metrics .v-icon, .k-compact-health .v-icon { color: currentColor !important; }
 .k-compact-metrics strong { font-variant-numeric: tabular-nums; }
 .k-compact-metrics .cpu { color: var(--k-cpu); }.k-compact-metrics .memory { color: var(--k-memory); }.k-compact-metrics .disk { color: var(--k-disk); }.k-compact-metrics .load { color: var(--k-load); }
 .k-compact-health { display: flex; align-items: center; gap: 10px; padding-top: 9px; border-top: 1px solid var(--k-border-subtle); color: var(--k-text-2); font-size: 12px; font-weight: 700; }

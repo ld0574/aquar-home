@@ -21,4 +21,5 @@ export default {
 
 <style scoped>
 .k-os { display: inline-flex; align-items: center; justify-content: center; width: 23px; height: 23px; flex-shrink: 0; border: 1px solid var(--k-border-subtle); border-radius: 6px; background: var(--k-surface-2); color: var(--k-text-2); }
+.k-os .v-icon { color: inherit !important; }
 </style>

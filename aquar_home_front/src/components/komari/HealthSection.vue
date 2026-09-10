@@ -65,7 +65,7 @@ export default {
 .k-health-block { min-width: 0; padding: 10px 11px 9px; border: 1px solid var(--k-border-subtle); border-radius: 12px; background: var(--k-surface-2); }
 .k-health-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
 .k-health-label { display: inline-flex; align-items: center; gap: 4px; color: var(--k-text-2); font-size: 11px; font-weight: 700; }
-.k-health-label .v-icon { color: var(--k-accent); }
+.k-health-label .v-icon { color: var(--k-accent) !important; }
 .k-health-value { color: var(--k-text); font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .k-health-value small { margin-left: 1px; color: var(--k-text-3); font-size: 10px; font-weight: 600; }
 .k-health-value.empty { color: var(--k-text-3); }
