@@ -137,7 +137,7 @@ docker compose up --pull never -d
 docker compose ps
 ```
 
-构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。Dockerfile 会缓存 npm 下载，并把依赖安装与源码构建分层；只修改代码时不会重复安装依赖。mediasoup 的 worker 默认按 `gh-proxy.com`、`ghfast.top`、官方 GitHub 的顺序尝试下载预编译包；如果仓库 `scripts/` 下存在对应文件名的 worker 压缩包（例如 `mediasoup-worker-3.26.0-linux-x64-kernel7.tgz`），会优先使用它。下载成功后还会写入 Docker BuildKit 本地缓存，后续构建直接复用，不再重复联网。下载失败会在有限时间内切换下一个地址，不再回退到耗时很长且容易被 Meson/libuv 网络阻塞的本地编译。
+构建阶段使用统一的 Node 22 和 Debian Trixie（其 glibc 满足 mediasoup 3.26.0 预编译 worker 的要求），并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。Dockerfile 会缓存 npm 下载，并把依赖安装与源码构建分层；只修改代码时不会重复安装依赖。mediasoup 的 worker 默认按 `gh-proxy.com`、`ghfast.top`、官方 GitHub 的顺序尝试下载预编译包；如果仓库 `scripts/` 下存在对应文件名的 worker 压缩包（例如 `mediasoup-worker-3.26.0-linux-x64-kernel7.tgz`），会优先使用它。下载成功后还会写入 Docker BuildKit 本地缓存，后续构建直接复用，不再重复联网。下载失败会在有限时间内切换下一个地址，不再回退到耗时很长且容易被 Meson/libuv 网络阻塞的本地编译。
 
 ```bash
 # 使用官方地址

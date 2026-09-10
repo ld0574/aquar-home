@@ -12,7 +12,9 @@
 # Debian slim is used for all stages so the backend's native dependencies
 # share the same glibc-based Linux environment during build and runtime.
 
-ARG NODE_IMAGE=node:22-bookworm-slim
+# mediasoup 3.26.0's Linux worker requires GLIBC_2.38; Debian Trixie ships a
+# newer glibc than Bookworm and can run the prebuilt worker without compiling.
+ARG NODE_IMAGE=node:22-trixie-slim
 ARG NPM_REGISTRY=https://registry.npmmirror.com
 ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://gh-proxy.com/https://github.com/versatica/mediasoup/releases/download,https://ghfast.top/https://github.com/versatica/mediasoup/releases/download,https://github.com/versatica/mediasoup/releases/download
 
