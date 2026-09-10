@@ -118,7 +118,10 @@ docker compose ps
 在本仓库根目录执行：
 
 ```bash
-docker build --build-arg NPM_REGISTRY=https://registry.npmmirror.com -t aquarhome:local .
+docker build \
+  --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
+  --build-arg MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://ghfast.top/https://github.com/versatica/mediasoup/releases/download \
+  -t aquarhome:local .
 ```
 
 构建完成后，将部署目录 `.env` 中的 `AQUAR_IMAGE` 改为 `aquarhome:local`：
@@ -134,9 +137,18 @@ docker compose up --pull never -d
 docker compose ps
 ```
 
-构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。mediasoup 会优先下载预编译 worker，下载不到时 builder 会回退到本地编译。sharp 0.34.5 的原生模块和 libvips 通过 npm 的可选依赖安装，Dockerfile 使用 `--include=optional` 保留它们，并在构建时验证模块能否加载。首次构建可能需要较长时间和稳定的外网访问。
+构建阶段使用统一的 Node 22，并构建前端与后端。前端仍使用旧版 Vue CLI / Webpack 4，因此构建命令会临时启用 OpenSSL legacy provider；这只影响构建阶段，不影响最终运行时。Dockerfile 会缓存 npm 下载，并把依赖安装与源码构建分层；只修改代码时不会重复安装依赖。mediasoup 的 worker 默认通过 `ghfast.top` 加速地址下载预编译包，下载失败会在有限时间内直接报错，不再回退到耗时很长且容易被 Meson/libuv 网络阻塞的本地编译。若服务器能访问官方 GitHub，或你有自己的镜像，可覆盖该参数：
 
-如果旧版本在 `npm ci` 时提示下载 `libvips-8.10.6-linux-x64.tar.br` 超时，说明正在安装 sharp 0.28.x；它会从 GitHub Releases 下载 libvips，仅修改 `NPM_REGISTRY` 不会改变这个下载地址。请同步本仓库更新后的 `Dockerfile`、`aquar_home_server/package.json` 和 `aquar_home_server/package-lock.json` 后重新构建。后端锁文件需要随源码一起提交和部署，不能只更新 `package.json`，也不要用 `--ignore-scripts` 跳过生产安装脚本；mediasoup 仍需要安装脚本准备 worker。
+```bash
+# 使用官方地址
+docker build \
+  --build-arg MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://github.com/versatica/mediasoup/releases/download \
+  -t aquarhome:local .
+```
+
+sharp 0.34.5 的原生模块和 libvips 通过 npm 的可选依赖安装，Dockerfile 使用 `--include=optional` 保留它们，并在构建时验证模块能否加载。首次构建仍需要稳定的外网访问，但正常情况下不会再进入 mediasoup 的本地 C++ 编译流程。
+
+如果旧版本在 `npm ci` 时提示下载 `libvips-8.10.6-linux-x64.tar.br` 超时，说明正在安装 sharp 0.28.x；它会从 GitHub Releases 下载 libvips，仅修改 `NPM_REGISTRY` 不会改变这个下载地址。请同步本仓库更新后的 `Dockerfile`、`aquar_home_server/package.json` 和 `aquar_home_server/package-lock.json` 后重新构建。后端锁文件需要随源码一起提交和部署，不能只更新 `package.json`，也不要用 `--ignore-scripts` 跳过生产安装脚本；当前 Dockerfile 保留其他 npm 生命周期脚本，并在单独步骤下载、校验 mediasoup worker。
 
 镜像名只是本机 tag，不代表镜像已经推送到仓库。也可以直接使用与 Docker Hub 相同的 tag 构建，但不执行 `docker push`：
 
@@ -172,7 +184,12 @@ docker compose up --pull never -d
 bash scripts/update_docker.sh
 ```
 
-脚本会执行 `git pull --ff-only`、校验 Compose 配置、使用 `NPM_REGISTRY=https://registry.npmmirror.com` 加速构建镜像，并以 `--pull never --force-recreate` 启动容器。默认不执行 `docker compose down`，需要完全停止旧容器时再追加 `--down`；需要清空构建缓存时追加 `--no-cache`。
+脚本会执行 `git pull --ff-only`、校验 Compose 配置、使用 npmmirror 和 mediasoup worker 加速地址构建镜像，并以 `--pull never --force-recreate` 启动容器。默认不执行 `docker compose down`，需要完全停止旧容器时再追加 `--down`；需要清空构建缓存时追加 `--no-cache`。如果你的网络不适合默认加速地址，可在执行时覆盖：
+
+```bash
+MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://github.com/versatica/mediasoup/releases/download \
+  bash scripts/update_docker.sh
+```
 
 如果要在另一台服务器使用本地构建的镜像，也不需要推送到 Docker Hub，可以导出并导入镜像：
 

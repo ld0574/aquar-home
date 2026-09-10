@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 # Aquar Home - compatibility focused multi-stage build
 #
 # Frontend:
@@ -13,6 +14,7 @@
 
 ARG NODE_IMAGE=node:22-bookworm-slim
 ARG NPM_REGISTRY=https://registry.npmmirror.com
+ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL=https://ghfast.top/https://github.com/versatica/mediasoup/releases/download
 
 # ============================================================
 # 1) Legacy frontend builder
@@ -25,11 +27,14 @@ WORKDIR /app/aquar_home/aquar_home_front
 
 RUN npm config set registry "${NPM_REGISTRY}"
 
+COPY ./aquar_home_front/package.json ./aquar_home_front/package-lock.json ./
+
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+
 COPY ./aquar_home_front/ ./
 
-RUN npm ci \
-    && NODE_OPTIONS=--openssl-legacy-provider npm run build \
-    && npm cache clean --force
+RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
 
 
 # ============================================================
@@ -45,18 +50,49 @@ WORKDIR /app/aquar_home/aquar_home_server
 
 RUN npm config set registry "${NPM_REGISTRY}"
 
-# mediasoup normally downloads a prebuilt worker. Keep a build-tool fallback
-# for servers where that download is blocked or unavailable for the target
-# architecture/kernel. These packages do not reach the final runtime image.
+# The worker is downloaded explicitly below. Since this image is intended to
+# use the prebuilt worker, do not install the large C++/Meson fallback toolchain
+# and do not spend 20+ minutes compiling when the download endpoint is slow.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        ca-certificates \
-       python3 \
-       python3-pip \
-       make \
-       g++ \
-       pkg-config \
+       curl \
+       tar \
     && rm -rf /var/lib/apt/lists/*
+
+COPY ./aquar_home_server/package.json ./aquar_home_server/package-lock.json ./
+
+# Let npm install the other packages normally, but prevent mediasoup from
+# starting its own network download here. Its worker is fetched explicitly
+# below so a slow/unreachable GitHub endpoint cannot trigger a long local
+# Meson/C++ fallback build.
+RUN --mount=type=cache,target=/root/.npm \
+    export MEDIASOUP_WORKER_BIN="${PWD}/node_modules/mediasoup/worker/out/Release/mediasoup-worker" \
+    && npm ci --omit=dev --include=optional
+
+# Keep this ARG after npm ci so changing the mirror only reruns this small
+# download layer instead of reinstalling every backend dependency.
+ARG MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL
+RUN set -eux; \
+    base_url="${MEDIASOUP_WORKER_PREBUILT_DOWNLOAD_BASE_URL%/}"; \
+    worker_version="$(node -p "require('./node_modules/mediasoup/package.json').version")"; \
+    worker_arch="$(node -p "process.arch")"; \
+    kernel_major="$(uname -r | cut -d. -f1)"; \
+    worker_name="mediasoup-worker-${worker_version}-linux-${worker_arch}-kernel${kernel_major}.tgz"; \
+    worker_path="${PWD}/node_modules/mediasoup/worker/out/Release/mediasoup-worker"; \
+    worker_archive="/tmp/${worker_name}"; \
+    worker_url="${base_url}/${worker_version}/${worker_name}"; \
+    echo "下载 mediasoup 预编译 worker：${worker_url}"; \
+    mkdir -p "$(dirname "${worker_path}")"; \
+    curl --fail --silent --show-error --location \
+      --connect-timeout 10 --max-time 120 --retry 2 --retry-delay 1 \
+      --output "${worker_archive}" "${worker_url}"; \
+    tar -xzf "${worker_archive}" -C "$(dirname "${worker_path}")"; \
+    rm -f "${worker_archive}"; \
+    chmod 0755 "${worker_path}"; \
+    worker_status=0; \
+    "${worker_path}" >/dev/null 2>&1 || worker_status=$?; \
+    test "${worker_status}" -eq 41
 
 COPY ./aquar_home_server/ ./
 
@@ -68,11 +104,8 @@ COPY --from=frontend-builder \
     /app/aquar_home/aquar_home_front/dist/. \
     ./public/
 
-# sharp 0.34 distributes its native addon and libvips as optional npm packages,
-# so it no longer needs the legacy install-time download from GitHub Releases.
-RUN npm ci --omit=dev --include=optional \
-    && node -e "require('sharp')" \
-    && npm cache clean --force
+# sharp 0.34 distributes its native addon and libvips as optional npm packages.
+RUN node -e "require('sharp')"
 
 
 # ============================================================
